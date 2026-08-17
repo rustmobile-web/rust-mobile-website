@@ -1231,6 +1231,15 @@ const inv = {
   sulfur: 0,
   meat: 0
 };
+  const inv = {
+  wood: 0,
+  stone: 0,
+  iron: 0,
+  copper: 0,
+  meat: 0
+};
+
+window.gameInv = inv;
 
 /* ================= HAND ================= */
 
@@ -2176,51 +2185,56 @@ $("hit").addEventListener(
 
 /* ================= BEAR DAMAGE ================= */
 
-function damage(amount){
-
-  if(!player.alive)
-    return;
-
-  player.hp-=amount;
-
-  updateHealth();
-
-  if(
-    player.hp<=0
-  ){
-
-    player.hp=0;
-    player.alive=false;
-
-    $("death").style.display=
-      "flex";
-
-  }
-
-}
-
 function hitBear(bear){
 
-  bear.hp-=18;
+  if(!bear || !bear.alive)
+    return;
 
-  bear.state="chase";
+  bear.hp -= 18;
 
-  if(
-    bear.hp<=0
-  ){
+  bear.state = "chase";
 
-    bear.alive=false;
+  if(bear.hp <= 0){
 
-    bear.group.rotation.z=
-      Math.PI/2;
+    bear.alive = false;
 
-    inv.meat+=3;
+    bear.group.rotation.z =
+      Math.PI / 2;
+
+    inv.meat += 3;
 
     updateResources();
 
   }
 
 }
+
+
+/* ================= КОПЬЁ ================= */
+
+window.useSpear = function(bear){
+
+  if(!bear || !bear.alive)
+    return;
+
+  bear.hp -= 35;
+
+  bear.state = "chase";
+
+  if(bear.hp <= 0){
+
+    bear.alive = false;
+
+    bear.group.rotation.z =
+      Math.PI / 2;
+
+    inv.meat += 3;
+
+    updateResources();
+
+  }
+
+};
 
 /* ================= BEAR AI ================= */
 
@@ -3365,6 +3379,802 @@ function updateInventoryUI() {
     inv.meat;
 
 }
+
+</script>
+  <!-- ================= ЧАСТЬ 6 — КРАФТ КОПЬЯ ================= -->
+
+<style>
+
+/* ===== КНОПКА КРАФТА ===== */
+
+#craftButton6{
+  position:fixed;
+  left:15px;
+  top:210px;
+
+  z-index:800;
+
+  width:75px;
+  height:42px;
+
+  border:1px solid #555;
+  border-radius:8px;
+
+  background:#171717;
+
+  color:white;
+
+  font-size:11px;
+  font-weight:bold;
+}
+
+
+/* ===== МЕНЮ КРАФТА ===== */
+
+#craftMenu6{
+
+  position:fixed;
+
+  inset:0;
+
+  z-index:3500;
+
+  display:none;
+
+  align-items:center;
+  justify-content:center;
+
+  background:rgba(0,0,0,.8);
+
+  padding:15px;
+
+}
+
+
+/* ===== ОКНО ===== */
+
+.craftWindow6{
+
+  position:relative;
+
+  width:min(700px,94vw);
+
+  height:min(500px,82vh);
+
+  display:flex;
+
+  overflow:hidden;
+
+  border:1px solid #444;
+  border-radius:10px;
+
+  background:#111;
+
+  box-shadow:
+    0 20px 60px rgba(0,0,0,.8);
+
+}
+
+
+/* ===== ЛЕВАЯ КАТЕГОРИЯ ===== */
+
+.craftCategories6{
+
+  width:180px;
+
+  flex-shrink:0;
+
+  border-right:1px solid #333;
+
+  background:#0d0d0d;
+
+}
+
+
+.craftCategory6{
+
+  width:100%;
+
+  min-height:58px;
+
+  border:0;
+
+  border-bottom:1px solid #292929;
+
+  background:#181818;
+
+  color:#fff;
+
+  font-size:11px;
+
+  text-align:left;
+
+  padding:12px;
+
+}
+
+
+/* ===== СОДЕРЖИМОЕ ===== */
+
+.craftContent6{
+
+  flex:1;
+
+  padding:22px;
+
+  overflow:auto;
+
+}
+
+
+.craftTitle6{
+
+  color:white;
+
+  font-size:22px;
+
+  font-weight:bold;
+
+  margin-bottom:20px;
+
+}
+
+
+.craftSubtitle6{
+
+  color:#777;
+
+  font-size:11px;
+
+  margin-bottom:15px;
+
+}
+
+
+/* ===== РЕЦЕПТ ===== */
+
+.spearRecipe6{
+
+  width:230px;
+
+  padding:15px;
+
+  border:1px solid #444;
+
+  border-radius:8px;
+
+  background:#181818;
+
+}
+
+
+.spearIcon6{
+
+  height:110px;
+
+  display:flex;
+
+  align-items:center;
+  justify-content:center;
+
+  font-size:65px;
+
+}
+
+
+.spearName6{
+
+  color:white;
+
+  font-size:17px;
+
+  font-weight:bold;
+
+  margin-top:5px;
+
+}
+
+
+.spearCost6{
+
+  color:#aaa;
+
+  font-size:12px;
+
+  margin-top:10px;
+
+}
+
+
+.spearCost6 b{
+
+  color:#d0b45b;
+
+}
+
+
+#craftSpear6{
+
+  width:100%;
+
+  height:42px;
+
+  margin-top:15px;
+
+  border:1px solid #666;
+
+  border-radius:6px;
+
+  background:#292929;
+
+  color:white;
+
+  font-weight:bold;
+
+}
+
+
+#craftSpear6:disabled{
+
+  opacity:.4;
+
+}
+
+
+/* ===== ЗАКРЫТЬ ===== */
+
+#closeCraft6{
+
+  position:absolute;
+
+  right:10px;
+  top:10px;
+
+  width:40px;
+  height:40px;
+
+  border:1px solid #444;
+  border-radius:7px;
+
+  background:#181818;
+
+  color:white;
+
+  font-size:19px;
+
+}
+
+
+#craftMessage6{
+
+  min-height:18px;
+
+  margin-top:8px;
+
+  color:#aaa;
+
+  font-size:11px;
+
+}
+
+
+/* ===== МОБИЛЬНАЯ ВЕРСИЯ ===== */
+
+@media(max-width:600px){
+
+  #craftButton6{
+
+    left:12px;
+    top:205px;
+
+    width:68px;
+    height:40px;
+
+  }
+
+
+  .craftWindow6{
+
+    width:96vw;
+    height:84vh;
+
+  }
+
+
+  .craftCategories6{
+
+    width:115px;
+
+  }
+
+
+  .craftCategory6{
+
+    font-size:9px;
+
+  }
+
+
+  .craftContent6{
+
+    padding:14px;
+
+  }
+
+
+  .craftTitle6{
+
+    font-size:18px;
+
+  }
+
+
+  .spearRecipe6{
+
+    width:100%;
+    max-width:230px;
+
+  }
+
+}
+
+</style>
+
+
+<!-- ================= КНОПКА ================= -->
+
+<button id="craftButton6">
+  🔨 КРАФТ
+</button>
+
+
+<!-- ================= МЕНЮ ================= -->
+
+<div id="craftMenu6">
+
+  <div class="craftWindow6">
+
+
+    <!-- ЗАКРЫТЬ -->
+
+    <button id="closeCraft6">
+      ✕
+    </button>
+
+
+    <!-- ЛЕВАЯ КАТЕГОРИЯ -->
+
+    <div class="craftCategories6">
+
+      <button class="craftCategory6">
+        ⚡ БЫСТРЫЙ КРАФТ
+      </button>
+
+    </div>
+
+
+    <!-- ПРАВАЯ ЧАСТЬ -->
+
+    <div class="craftContent6">
+
+      <div class="craftTitle6">
+        БЫСТРЫЙ КРАФТ
+      </div>
+
+      <div class="craftSubtitle6">
+        Доступные предметы
+      </div>
+
+
+      <!-- КОПЬЁ -->
+
+      <div class="spearRecipe6">
+
+        <div class="spearIcon6">
+          🗡️
+        </div>
+
+        <div class="spearName6">
+          КОПЬЁ
+        </div>
+
+        <div class="spearCost6">
+          Стоимость:
+          <b>🪵 10 дерева</b>
+        </div>
+
+        <button id="craftSpear6">
+          СОЗДАТЬ
+        </button>
+
+        <div id="craftMessage6"></div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<script>
+
+/* ================= КРАФТ ================= */
+
+const craftButton6 =
+  document.getElementById(
+    "craftButton6"
+  );
+
+const craftMenu6 =
+  document.getElementById(
+    "craftMenu6"
+  );
+
+const closeCraft6 =
+  document.getElementById(
+    "closeCraft6"
+  );
+
+const craftSpear6 =
+  document.getElementById(
+    "craftSpear6"
+  );
+
+const craftMessage6 =
+  document.getElementById(
+    "craftMessage6"
+  );
+
+
+/* ================= СОСТОЯНИЕ ================= */
+
+let spearCrafted6 = false;
+
+
+/* ================= ОТКРЫТЬ ================= */
+
+craftButton6.addEventListener(
+  "pointerdown",
+  function(e){
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    craftMenu6.style.display =
+      "flex";
+
+    updateCraft6();
+
+  }
+);
+
+
+/* ================= ЗАКРЫТЬ ================= */
+
+closeCraft6.addEventListener(
+  "pointerdown",
+  function(e){
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    craftMenu6.style.display =
+      "none";
+
+  }
+);
+
+
+/* ================= ОБНОВЛЕНИЕ ================= */
+
+function updateCraft6(){
+
+  if(
+    typeof window.gameInv ===
+    "undefined"
+  )
+    return;
+
+
+  const wood =
+    window.gameInv.wood || 0;
+
+
+  if(spearCrafted6){
+
+    craftSpear6.disabled =
+      true;
+
+    craftMessage6.textContent =
+      "Копьё уже создано";
+
+    return;
+
+  }
+
+
+  if(wood < 10){
+
+    craftSpear6.disabled =
+      true;
+
+    craftMessage6.textContent =
+      "Нужно ещё " +
+      (10 - wood) +
+      " дерева";
+
+  }else{
+
+    craftSpear6.disabled =
+      false;
+
+    craftMessage6.textContent =
+      "Готово к созданию";
+
+  }
+
+}
+
+
+/* ================= СОЗДАНИЕ КОПЬЯ ================= */
+
+craftSpear6.addEventListener(
+  "pointerdown",
+  function(e){
+
+    e.preventDefault();
+    e.stopPropagation();
+
+
+    if(
+      typeof window.gameInv ===
+      "undefined"
+    )
+      return;
+
+
+    if(spearCrafted6)
+      return;
+
+
+    const wood =
+      window.gameInv.wood || 0;
+
+
+    if(wood < 10){
+
+      craftMessage6.textContent =
+        "Недостаточно дерева!";
+
+      return;
+
+    }
+
+
+    /* ЗАБИРАЕМ ДЕРЕВО */
+
+    window.gameInv.wood -= 10;
+
+
+    /* СОЗДАЁМ КОПЬЁ */
+
+    spearCrafted6 = true;
+
+
+    /* ОБНОВЛЯЕМ HUD */
+
+    if(
+      typeof updateResources ===
+      "function"
+    ){
+
+      updateResources();
+
+    }
+
+
+    /* ДОБАВЛЯЕМ В HOTBAR */
+
+    addSpearToHotbar6();
+
+
+    craftMessage6.textContent =
+      "Копьё создано!";
+
+
+    craftSpear6.disabled =
+      true;
+
+
+    setTimeout(
+      function(){
+
+        craftMenu6.style.display =
+          "none";
+
+      },
+      500
+    );
+
+  }
+);
+
+
+/* ================= HOTBAR ================= */
+
+function addSpearToHotbar6(){
+
+  /*
+    Ищем существующие слоты
+    твоего хотбара.
+  */
+
+  const slots =
+    document.querySelectorAll(
+      "#hotbar .slot"
+    );
+
+
+  if(!slots.length)
+    return;
+
+
+  /*
+    Кладём копьё в первый
+    свободный слот.
+  */
+
+  let spearSlot = null;
+
+
+  for(
+    let i=0;
+    i<slots.length;
+    i++
+  ){
+
+    if(
+      !slots[i].textContent.trim()
+    ){
+
+      spearSlot =
+        slots[i];
+
+      break;
+
+    }
+
+  }
+
+
+  /*
+    Если свободного слота нет,
+    используем последний.
+  */
+
+  if(!spearSlot){
+
+    spearSlot =
+      slots[slots.length-1];
+
+  }
+
+
+  spearSlot.textContent =
+    "🗡️";
+
+
+  spearSlot.dataset.item =
+    "spear";
+
+
+  spearSlot.classList.add(
+    "spearSlot6"
+  );
+
+
+  /*
+    Выбираем копьё.
+  */
+
+  slots.forEach(
+    function(slot){
+
+      slot.classList.remove(
+        "active"
+      );
+
+    }
+  );
+
+
+  spearSlot.classList.add(
+    "active"
+  );
+
+}
+
+
+/* ================= ВЫБОР КОПЬЯ ================= */
+
+document.addEventListener(
+  "pointerdown",
+  function(e){
+
+    const slot =
+      e.target.closest(
+        ".spearSlot6"
+      );
+
+
+    if(!slot)
+      return;
+
+
+    e.preventDefault();
+    e.stopPropagation();
+
+
+    document
+      .querySelectorAll(
+        "#hotbar .slot"
+      )
+      .forEach(
+        function(s){
+
+          s.classList.remove(
+            "active"
+          );
+
+        }
+      );
+
+
+    slot.classList.add(
+      "active"
+    );
+
+  },
+  true
+);
+
+
+/* ================= ESC ================= */
+
+document.addEventListener(
+  "keydown",
+  function(e){
+
+    if(e.key === "Escape"){
+
+      craftMenu6.style.display =
+        "none";
+
+    }
+
+  }
+);
+
+
+/* ================= ЗАКРЫТИЕ ПО ФОНУ ================= */
+
+craftMenu6.addEventListener(
+  "pointerdown",
+  function(e){
+
+    if(
+      e.target === craftMenu6
+    ){
+
+      craftMenu6.style.display =
+        "none";
+
+    }
+
+  }
+);
 
 </script>
 </body>
