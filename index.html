@@ -1,2114 +1,3391 @@
 <!doctype html>
 <html lang="ru">
 <head>
+
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+
+<meta name="viewport"
+content="width=device-width,
+initial-scale=1,
+maximum-scale=1,
+user-scalable=no,
+viewport-fit=cover">
+
 <meta name="theme-color" content="#080808">
-<title>Rust Mobile [web]</title>
+
+<title>Rust Mobile Web</title>
 
 <style>
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#050505;color:#fff;font-family:Arial,sans-serif;touch-action:none;user-select:none}
-#game{position:fixed;inset:0}
-canvas{display:block;width:100%;height:100%}
 
-#menu{
- position:fixed;inset:0;z-index:1000;
- display:flex;flex-direction:column;align-items:flex-end;justify-content:center;
- padding:25px;
- background:radial-gradient(circle at 85% 20%,rgba(220,0,0,.35),transparent 35%),linear-gradient(135deg,#050505,#170707,#050505)
-}
-.logo{margin-right:5px;margin-bottom:45px;font-size:31px;font-weight:900;letter-spacing:2px;text-align:right}
-.logo span{color:#e00000}
-.menuButton{
- width:230px;height:58px;margin:7px 0;border:1px solid #d40000;border-radius:8px;
- background:rgba(20,20,20,.95);color:#fff;font-size:17px;font-weight:bold;letter-spacing:1px
-}
-.menuButton:active{background:#c90000;transform:scale(.96)}
+/* =====================================================
+   ОСНОВА
+===================================================== */
 
-#settings{
- position:fixed;inset:0;z-index:1100;display:none;padding:30px;
- background:linear-gradient(135deg,#050505,#160606,#050505)
-}
-.settingsTitle{margin:30px 0;text-align:center;font-size:28px;color:#e00000}
-.settingsBox{max-width:400px;margin:auto;padding:20px;border:1px solid #333;border-radius:12px;background:#111}
-.settingsBox p{font-size:17px}
-#fpsStatus{color:#e00000}
-.backButton{margin-top:20px}
-
-#fps{
- position:fixed;top:10px;right:10px;z-index:500;padding:5px 9px;
- border-radius:5px;background:rgba(0,0,0,.6);font-size:13px;font-weight:bold;display:none
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
 }
 
-#hud{position:fixed;inset:0;pointer-events:none;display:none}
-.panel{background:rgba(10,10,10,.6);border:1px solid rgba(255,255,255,.25);border-radius:10px;backdrop-filter:blur(5px)}
-#top{position:absolute;top:10px;left:10px;display:flex;gap:8px}
-#health{width:190px;padding:8px;font-size:11px}
-.healthBar{height:8px;margin-top:5px;background:#222;border-radius:5px;overflow:hidden}
-#healthFill{width:100%;height:100%;background:linear-gradient(90deg,#b00000,#ff3333)}
-#resources{padding:7px 10px;font-size:12px;line-height:1.5}
-#resources b{color:#ffdddd}
+html,
+body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
 
-#crosshair{
- position:fixed;left:50%;top:50%;width:20px;height:20px;
- transform:translate(-50%,-50%);pointer-events:none
-}
-#crosshair:before,#crosshair:after{content:"";position:absolute;background:#fff;box-shadow:0 0 3px #000}
-#crosshair:before{width:2px;height:16px;left:9px;top:2px}
-#crosshair:after{width:16px;height:2px;left:2px;top:9px}
+  background: #050505;
+  color: white;
 
-#target{
- position:fixed;left:50%;top:calc(50% + 25px);transform:translateX(-50%);
- padding:5px 10px;border-radius:8px;background:rgba(0,0,0,.6);font-size:12px;display:none
+  font-family: Arial, sans-serif;
+
+  touch-action: none;
+  user-select: none;
 }
 
-#joystick{
- position:fixed;left:20px;bottom:110px;width:125px;height:125px;border-radius:50%;
- border:2px solid rgba(255,255,255,.3);background:rgba(0,0,0,.35);pointer-events:auto
-}
-#knob{
- position:absolute;left:50%;top:50%;width:55px;height:55px;margin:-27.5px;
- border-radius:50%;background:rgba(255,255,255,.45);border:1px solid #fff
+body {
+  position: fixed;
 }
 
-#buttons{
- position:fixed;right:15px;bottom:105px;display:flex;flex-direction:column;
- gap:10px;align-items:flex-end
+button {
+  font-family: Arial, sans-serif;
+  touch-action: manipulation;
 }
-.gameButton{
- width:75px;height:75px;border-radius:50%;border:1px solid rgba(255,255,255,.3);
- background:rgba(15,15,15,.65);color:#fff;font-size:11px;font-weight:bold;pointer-events:auto
-}
-.gameButton.big{width:88px;height:88px;background:rgba(150,0,0,.55)}
-.gameButton:active{transform:scale(.94);background:#c00000}
 
-#hotbar{
- position:fixed;left:50%;bottom:10px;transform:translateX(-50%);
- display:flex;gap:7px;pointer-events:auto
+#game {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
 }
-.slot{
- width:55px;height:55px;border:2px solid #333;border-radius:9px;background:rgba(10,10,10,.65);
- display:flex;align-items:center;justify-content:center;font-size:22px;pointer-events:auto
-}
-.slot.active{border-color:#e00000;background:rgba(150,0,0,.45)}
 
-#death{
- position:fixed;inset:0;z-index:2000;display:none;align-items:center;justify-content:center;
- flex-direction:column;background:rgba(20,0,0,.85);pointer-events:auto
-}
-#death h1{color:#ff2222;font-size:38px}
+canvas {
+  display: block;
 
-#inventoryButton{
- position:fixed;left:15px;top:145px;z-index:700;width:58px;height:58px;border-radius:12px;
- border:1px solid #777;background:rgba(15,15,15,.82);color:#fff;font-size:27px;pointer-events:auto
+  width: 100%;
+  height: 100%;
 }
-#inventoryButton:active{transform:scale(.92);background:#333}
 
-#inventory{
- position:fixed;inset:0;z-index:3000;display:none;align-items:center;justify-content:center;
- background:rgba(0,0,0,.82);pointer-events:auto
-}
-.inventoryWindow{
- position:relative;width:min(900px,94vw);height:min(600px,88vh);padding:25px;
- border:1px solid #555;border-radius:14px;background:linear-gradient(135deg,#111,#181818,#0c0c0c);
- box-shadow:0 20px 60px rgba(0,0,0,.8)
-}
-.inventoryTitle{text-align:center;margin-bottom:20px;color:#eee;font-size:25px;font-weight:bold;letter-spacing:2px}
-#closeInventory{
- position:absolute;top:12px;right:12px;width:42px;height:42px;border:1px solid #555;
- border-radius:8px;background:#181818;color:#fff;font-size:20px
-}
-.inventoryContent{display:flex;gap:25px;height:calc(100% - 55px)}
-.characterPanel{
- flex:1;min-width:250px;display:flex;flex-direction:column;align-items:center;
- padding:15px;border:1px solid #333;border-radius:10px;background:rgba(0,0,0,.3)
-}
-.characterTitle,.itemsTitle{margin-bottom:15px;color:#aaa;font-size:14px;letter-spacing:1px}
-.character{position:relative;width:190px;height:300px;margin-top:5px}
-.characterHead{
- position:absolute;left:70px;top:15px;width:50px;height:55px;border-radius:45%;
- background:#b87950;border:2px solid #533a2a
-}
-.characterBody{
- position:absolute;left:55px;top:70px;width:80px;height:120px;border-radius:15px;
- background:#555;border:2px solid #292929
-}
-.characterArm{position:absolute;top:78px;width:25px;height:105px;border-radius:15px;background:#555}
-.characterArm.left{left:30px;transform:rotate(10deg)}
-.characterArm.right{right:30px;transform:rotate(-10deg)}
-.characterLeg{position:absolute;top:180px;width:32px;height:105px;border-radius:12px;background:#333}
-.characterLeg.left{left:58px}.characterLeg.right{right:58px}
-.equipment{display:flex;gap:7px;margin-top:auto}
-.equipmentSlot{
- width:75px;height:45px;display:flex;align-items:center;justify-content:center;text-align:center;
- border:1px solid #444;border-radius:7px;background:#151515;color:#777;font-size:9px
-}
-.itemsPanel{flex:1.35;padding:15px;border:1px solid #333;border-radius:10px;background:rgba(0,0,0,.3)}
-.inventoryGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-.inventorySlot{
- position:relative;min-height:88px;padding:8px;display:flex;flex-direction:column;
- align-items:center;justify-content:center;border:1px solid #444;border-radius:8px;background:#161616
-}
-.inventorySlot.empty{opacity:.35}
-.itemIcon{font-size:27px}.itemName{margin-top:5px;color:#aaa;font-size:10px}
-.inventorySlot b{position:absolute;right:6px;bottom:5px;color:#fff;font-size:12px}
 
-#craftButton6{
- position:fixed;left:15px;top:210px;z-index:800;width:75px;height:42px;
- border:1px solid #555;border-radius:8px;background:#171717;color:#fff;font-size:11px;font-weight:bold;
- pointer-events:auto
-}
-#craftMenu6{
- position:fixed;inset:0;z-index:3500;display:none;align-items:center;justify-content:center;
- background:rgba(0,0,0,.8);padding:15px;pointer-events:auto
-}
-.craftWindow6{
- position:relative;width:min(700px,94vw);height:min(500px,82vh);display:flex;overflow:hidden;
- border:1px solid #444;border-radius:10px;background:#111;box-shadow:0 20px 60px rgba(0,0,0,.8)
-}
-.craftCategories6{width:180px;flex-shrink:0;border-right:1px solid #333;background:#0d0d0d}
-.craftCategory6{
- width:100%;min-height:58px;border:0;border-bottom:1px solid #292929;background:#181818;
- color:#fff;font-size:11px;text-align:left;padding:12px
-}
-.craftContent6{flex:1;padding:22px;overflow:auto}
-.craftTitle6{color:#fff;font-size:22px;font-weight:bold;margin-bottom:20px}
-.craftSubtitle6{color:#777;font-size:11px;margin-bottom:15px}
-.spearRecipe6{width:230px;padding:15px;border:1px solid #444;border-radius:8px;background:#181818}
-.spearIcon6{height:110px;display:flex;align-items:center;justify-content:center;font-size:65px}
-.spearName6{color:#fff;font-size:17px;font-weight:bold;margin-top:5px}
-.spearCost6{color:#aaa;font-size:12px;margin-top:10px}
-.spearCost6 b{color:#d0b45b}
-#craftSpear6{
- width:100%;height:42px;margin-top:15px;border:1px solid #666;border-radius:6px;
- background:#292929;color:#fff;font-weight:bold
-}
-#craftSpear6:disabled{opacity:.4}
-#closeCraft6{
- position:absolute;right:10px;top:10px;width:40px;height:40px;border:1px solid #444;
- border-radius:7px;background:#181818;color:#fff;font-size:19px
-}
-#craftMessage6{min-height:18px;margin-top:8px;color:#aaa;font-size:11px}
+/* =====================================================
+   ГЛАВНОЕ МЕНЮ
+===================================================== */
 
-@media(max-width:650px){
- .inventoryWindow{width:96vw;height:90vh;padding:12px}
- .inventoryTitle{font-size:19px;margin-bottom:10px}
- .inventoryContent{gap:8px}
- .characterPanel{min-width:125px;padding:7px}
- .character{transform:scale(.65);transform-origin:top center;height:205px}
- .equipment{flex-direction:column;gap:4px}
- .equipmentSlot{width:95px;height:30px}
- .itemsPanel{padding:7px}
- .inventoryGrid{grid-template-columns:repeat(3,1fr);gap:5px}
- .inventorySlot{min-height:65px}
- .itemIcon{font-size:21px}.itemName{font-size:8px}
- #craftButton6{left:12px;top:205px;width:68px;height:40px}
- .craftWindow6{width:96vw;height:84vh}
- .craftCategories6{width:115px}
- .craftCategory6{font-size:9px}
- .craftContent6{padding:14px}
- .craftTitle6{font-size:18px}
- .spearRecipe6{width:100%;max-width:230px}
+#menu {
+
+  position: fixed;
+  inset: 0;
+
+  z-index: 1000;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: flex-end;
+  justify-content: center;
+
+  padding: 25px;
+
+  background:
+    radial-gradient(
+      circle at 85% 20%,
+      rgba(220,0,0,.35),
+      transparent 35%
+    ),
+    linear-gradient(
+      135deg,
+      #050505,
+      #170707,
+      #050505
+    );
 }
-@media(max-width:430px){
- .characterPanel{min-width:105px}
- .character{transform:scale(.52)}
- .inventoryGrid{grid-template-columns:repeat(2,1fr)}
- .inventorySlot{min-height:62px}
+
+.logo {
+
+  margin-right: 5px;
+  margin-bottom: 45px;
+
+  font-size: 31px;
+
+  font-weight: 900;
+
+  letter-spacing: 2px;
+
+  text-align: right;
 }
+
+.logo span {
+  color: #e00000;
+}
+
+.menuButton {
+
+  width: 230px;
+  height: 58px;
+
+  margin: 7px 0;
+
+  border: 1px solid #d40000;
+
+  border-radius: 8px;
+
+  background: rgba(20,20,20,.95);
+
+  color: white;
+
+  font-size: 17px;
+
+  font-weight: bold;
+
+  letter-spacing: 1px;
+}
+
+.menuButton:active {
+
+  background: #c90000;
+
+  transform: scale(.96);
+}
+
+
+/* =====================================================
+   НАСТРОЙКИ
+===================================================== */
+
+#settings {
+
+  position: fixed;
+  inset: 0;
+
+  z-index: 1100;
+
+  display: none;
+
+  padding: 30px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #050505,
+      #160606,
+      #050505
+    );
+}
+
+.settingsTitle {
+
+  margin: 30px 0;
+
+  text-align: center;
+
+  font-size: 28px;
+
+  color: #e00000;
+}
+
+.settingsBox {
+
+  width: min(400px, 94vw);
+
+  margin: auto;
+
+  padding: 20px;
+
+  border: 1px solid #333;
+
+  border-radius: 12px;
+
+  background: #111;
+}
+
+.settingsBox p {
+  font-size: 17px;
+}
+
+#fpsStatus {
+  color: #e00000;
+}
+
+.backButton {
+  margin-top: 20px;
+}
+
+
+/* =====================================================
+   FPS
+===================================================== */
+
+#fps {
+
+  position: fixed;
+
+  top: 10px;
+  right: 10px;
+
+  z-index: 500;
+
+  padding: 5px 9px;
+
+  border-radius: 5px;
+
+  background: rgba(0,0,0,.6);
+
+  color: white;
+
+  font-size: 13px;
+
+  font-weight: bold;
+
+  display: none;
+}
+
+
+/* =====================================================
+   HUD
+===================================================== */
+
+#hud {
+
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 400;
+
+  pointer-events: none;
+
+  display: none;
+}
+
+.panel {
+
+  background:
+    rgba(10,10,10,.6);
+
+  border:
+    1px solid
+    rgba(255,255,255,.25);
+
+  border-radius: 10px;
+
+  backdrop-filter: blur(5px);
+}
+
+
+/* =====================================================
+   ВЕРХНИЙ HUD
+===================================================== */
+
+#top {
+
+  position: absolute;
+
+  top: 10px;
+  left: 10px;
+
+  display: flex;
+
+  gap: 8px;
+}
+
+#health {
+
+  width: 190px;
+
+  padding: 8px;
+
+  font-size: 11px;
+}
+
+.healthBar {
+
+  height: 8px;
+
+  margin-top: 5px;
+
+  background: #222;
+
+  border-radius: 5px;
+
+  overflow: hidden;
+}
+
+#healthFill {
+
+  width: 100%;
+  height: 100%;
+
+  background:
+    linear-gradient(
+      90deg,
+      #b00000,
+      #ff3333
+    );
+
+  transition:
+    width .15s ease;
+}
+
+#resources {
+
+  padding:
+    7px 10px;
+
+  font-size: 12px;
+
+  line-height: 1.5;
+}
+
+#resources b {
+  color: #ffdddd;
+}
+
+
+/* =====================================================
+   ПРИЦЕЛ
+===================================================== */
+
+#crosshair {
+
+  position: fixed;
+
+  left: 50%;
+  top: 50%;
+
+  width: 20px;
+  height: 20px;
+
+  transform:
+    translate(-50%, -50%);
+
+  pointer-events: none;
+}
+
+#crosshair:before,
+#crosshair:after {
+
+  content: "";
+
+  position: absolute;
+
+  background: white;
+
+  box-shadow:
+    0 0 3px black;
+}
+
+#crosshair:before {
+
+  width: 2px;
+  height: 16px;
+
+  left: 9px;
+  top: 2px;
+}
+
+#crosshair:after {
+
+  width: 16px;
+  height: 2px;
+
+  left: 2px;
+  top: 9px;
+}
+
+
+/* =====================================================
+   ЦЕЛЬ
+===================================================== */
+
+#target {
+
+  position: fixed;
+
+  left: 50%;
+  top: calc(50% + 25px);
+
+  transform:
+    translateX(-50%);
+
+  padding:
+    5px 10px;
+
+  border-radius: 8px;
+
+  background:
+    rgba(0,0,0,.6);
+
+  font-size: 12px;
+
+  display: none;
+}
+
+
+/* =====================================================
+   ДЖОЙСТИК
+===================================================== */
+
+#joystick {
+
+  position: fixed;
+
+  left: 20px;
+  bottom: 110px;
+
+  width: 125px;
+  height: 125px;
+
+  border-radius: 50%;
+
+  border:
+    2px solid
+    rgba(255,255,255,.3);
+
+  background:
+    rgba(0,0,0,.35);
+
+  pointer-events: auto;
+
+  touch-action: none;
+}
+
+#knob {
+
+  position: absolute;
+
+  left: 50%;
+  top: 50%;
+
+  width: 55px;
+  height: 55px;
+
+  margin-left: -27.5px;
+  margin-top: -27.5px;
+
+  border-radius: 50%;
+
+  background:
+    rgba(255,255,255,.45);
+
+  border:
+    1px solid white;
+
+  transform:
+    translate(0,0);
+
+  transition:
+    transform .04s linear;
+}
+
+
+/* =====================================================
+   ИГРОВЫЕ КНОПКИ
+===================================================== */
+
+#buttons {
+
+  position: fixed;
+
+  right: 15px;
+  bottom: 105px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 10px;
+
+  align-items: flex-end;
+}
+
+.gameButton {
+
+  width: 75px;
+  height: 75px;
+
+  border-radius: 50%;
+
+  border:
+    1px solid
+    rgba(255,255,255,.3);
+
+  background:
+    rgba(15,15,15,.65);
+
+  color: white;
+
+  font-size: 11px;
+
+  font-weight: bold;
+
+  pointer-events: auto;
+
+  touch-action: manipulation;
+}
+
+.gameButton.big {
+
+  width: 88px;
+  height: 88px;
+
+  background:
+    rgba(150,0,0,.55);
+}
+
+.gameButton:active {
+
+  transform:
+    scale(.94);
+
+  background:
+    #c00000;
+}
+
+
+/* =====================================================
+   HOTBAR
+===================================================== */
+
+#hotbar {
+
+  position: fixed;
+
+  left: 50%;
+  bottom: 10px;
+
+  transform:
+    translateX(-50%);
+
+  display: flex;
+
+  gap: 7px;
+
+  pointer-events: auto;
+}
+
+.slot {
+
+  width: 55px;
+  height: 55px;
+
+  border:
+    2px solid #333;
+
+  border-radius: 9px;
+
+  background:
+    rgba(10,10,10,.65);
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  font-size: 22px;
+
+  pointer-events: auto;
+}
+
+.slot.active {
+
+  border-color:
+    #e00000;
+
+  background:
+    rgba(150,0,0,.45);
+}
+
+
+/* =====================================================
+   СМЕРТЬ
+===================================================== */
+
+#death {
+
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 2000;
+
+  display: none;
+
+  align-items: center;
+  justify-content: center;
+
+  flex-direction: column;
+
+  background:
+    rgba(20,0,0,.85);
+
+  pointer-events: auto;
+}
+
+#death h1 {
+
+  color: #ff2222;
+
+  font-size: 38px;
+
+  margin-bottom: 5px;
+}
+
+
+/* =====================================================
+   ИНВЕНТАРЬ — КНОПКА
+===================================================== */
+
+#inventoryButton {
+
+  position: fixed;
+
+  left: 15px;
+  top: 145px;
+
+  z-index: 700;
+
+  width: 58px;
+  height: 58px;
+
+  border-radius: 12px;
+
+  border:
+    1px solid #777;
+
+  background:
+    rgba(15,15,15,.82);
+
+  color: white;
+
+  font-size: 27px;
+
+  pointer-events: auto;
+}
+
+#inventoryButton:active {
+
+  transform:
+    scale(.92);
+
+  background:
+    #333;
+}
+
+
+/* =====================================================
+   КРАФТ — КНОПКА
+===================================================== */
+
+#craftButton6 {
+
+  position: fixed;
+
+  left: 15px;
+  top: 210px;
+
+  z-index: 800;
+
+  width: 75px;
+  height: 42px;
+
+  border:
+    1px solid #555;
+
+  border-radius: 8px;
+
+  background:
+    #171717;
+
+  color: white;
+
+  font-size: 11px;
+
+  font-weight: bold;
+
+  pointer-events: auto;
+}
+
+
+/* =====================================================
+   АДАПТАЦИЯ ПОД ТЕЛЕФОН
+===================================================== */
+
+@media(max-width:650px) {
+
+  #top {
+    transform: scale(.9);
+    transform-origin: top left;
+  }
+
+  .logo {
+    font-size: 25px;
+  }
+
+  .menuButton {
+    width: 210px;
+  }
+
+  #joystick {
+    left: 15px;
+    bottom: 100px;
+  }
+
+  #buttons {
+    right: 10px;
+    bottom: 100px;
+  }
+
+}
+
+@media(max-width:430px) {
+
+  #joystick {
+
+    width: 110px;
+    height: 110px;
+
+  }
+
+  #knob {
+
+    width: 50px;
+    height: 50px;
+
+    margin-left: -25px;
+    margin-top: -25px;
+
+  }
+
+  .gameButton {
+
+    width: 66px;
+    height: 66px;
+
+  }
+
+  .gameButton.big {
+
+    width: 78px;
+    height: 78px;
+
+  }
+
+}
+
+
+/* =====================================================
+   АНИМАЦИЯ УДАРА РЕСУРСА
+===================================================== */
+
+.resourceHit {
+
+  animation:
+    resourceHitAnim .18s ease-out;
+}
+
+@keyframes resourceHitAnim {
+
+  0% {
+    transform:
+      translateY(0)
+      rotateX(0deg);
+  }
+
+  35% {
+    transform:
+      translateY(-.08px)
+      rotateX(-7deg);
+  }
+
+  70% {
+    transform:
+      translateY(.05px)
+      rotateX(5deg);
+  }
+
+  100% {
+    transform:
+      translateY(0)
+      rotateX(0deg);
+  }
+
+}
+
+
+/* =====================================================
+   АНИМАЦИЯ РУКИ / ИНСТРУМЕНТА
+===================================================== */
+
+.toolSwing {
+
+  animation:
+    toolSwingAnim .22s ease-out;
+}
+
+@keyframes toolSwingAnim {
+
+  0% {
+    transform:
+      translateZ(0)
+      rotateX(0deg);
+  }
+
+  35% {
+    transform:
+      translateZ(-.12px)
+      rotateX(-18deg);
+  }
+
+  70% {
+    transform:
+      translateZ(.08px)
+      rotateX(12deg);
+  }
+
+  100% {
+    transform:
+      translateZ(0)
+      rotateX(0deg);
+  }
+
+}
+
+
+/* =====================================================
+   НЕ ПОКАЗЫВАЕМ ЛИШНИЕ КНОПКИ ДО СТАРТА
+===================================================== */
+
+#inventoryButton,
+#craftButton6 {
+  display: none;
+}
+
 </style>
 </head>
 
 <body>
 
+<!-- =====================================================
+     THREE.JS КОНТЕЙНЕР
+===================================================== -->
+
 <div id="game"></div>
 
+
+<!-- =====================================================
+     ГЛАВНОЕ МЕНЮ
+===================================================== -->
+
 <div id="menu">
- <div class="logo">RUST MOBILE <span>[web]</span></div>
- <button class="menuButton" id="playButton">ИГРАТЬ</button>
- <button class="menuButton" id="settingsButton">НАСТРОЙКИ</button>
+
+  <div class="logo">
+    RUST MOBILE
+    <span>[web]</span>
+  </div>
+
+  <button
+    class="menuButton"
+    id="playButton">
+
+    ИГРАТЬ
+
+  </button>
+
+  <button
+    class="menuButton"
+    id="settingsButton">
+
+    НАСТРОЙКИ
+
+  </button>
+
 </div>
+
+
+<!-- =====================================================
+     НАСТРОЙКИ
+===================================================== -->
 
 <div id="settings">
- <div class="settingsTitle">НАСТРОЙКИ</div>
- <div class="settingsBox">
-  <p>FPS: <b id="fpsStatus">ВКЛ</b></p>
-  <button class="menuButton" id="fpsButton">ПОКАЗЫВАТЬ FPS</button>
-  <button class="menuButton backButton" id="backButton">НАЗАД</button>
- </div>
+
+  <div class="settingsTitle">
+    НАСТРОЙКИ
+  </div>
+
+  <div class="settingsBox">
+
+    <p>
+      FPS:
+      <b id="fpsStatus">
+        ВКЛ
+      </b>
+    </p>
+
+    <button
+      class="menuButton"
+      id="fpsButton">
+
+      ПОКАЗЫВАТЬ FPS
+
+    </button>
+
+    <button
+      class="menuButton backButton"
+      id="backButton">
+
+      НАЗАД
+
+    </button>
+
+  </div>
+
 </div>
 
-<div id="fps">FPS: 0</div>
+
+<!-- =====================================================
+     FPS
+===================================================== -->
+
+<div id="fps">
+  FPS: 0
+</div>
+
+
+<!-- =====================================================
+     HUD
+===================================================== -->
 
 <div id="hud">
- <div id="top">
-  <div class="panel" id="health">
-   ЗДОРОВЬЕ
-   <div class="healthBar"><div id="healthFill"></div></div>
+
+  <div id="top">
+
+    <div
+      class="panel"
+      id="health">
+
+      ЗДОРОВЬЕ
+
+      <div class="healthBar">
+
+        <div id="healthFill"></div>
+
+      </div>
+
+    </div>
+
+
+    <div
+      class="panel"
+      id="resources">
+
+      Дерево:
+      <b id="wood">0</b>
+      <br>
+
+      Камень:
+      <b id="stone">0</b>
+      <br>
+
+      Железо:
+      <b id="iron">0</b>
+      <br>
+
+      Сера:
+      <b id="sulfur">0</b>
+      <br>
+
+      Мясо:
+      <b id="meat">0</b>
+
+    </div>
+
   </div>
-  <div class="panel" id="resources">
-   Дерево: <b id="wood">0</b><br>
-   Камень: <b id="stone">0</b><br>
-   Железо: <b id="iron">0</b><br>
-   Сера: <b id="sulfur">0</b><br>
-   Мясо: <b id="meat">0</b>
+
+
+  <div id="crosshair"></div>
+
+
+  <div id="target"></div>
+
+
+  <!-- ДЖОЙСТИК -->
+
+  <div id="joystick">
+
+    <div id="knob"></div>
+
   </div>
- </div>
 
- <div id="crosshair"></div>
- <div id="target"></div>
 
- <div id="joystick"><div id="knob"></div></div>
+  <!-- КНОПКИ -->
 
- <div id="buttons">
-  <button class="gameButton" id="jump">ПРЫЖОК</button>
-  <button class="gameButton" id="hit">УДАР</button>
-  <button class="gameButton big" id="gather">ДОБЫТЬ</button>
- </div>
+  <div id="buttons">
 
- <div id="hotbar">
-  <div class="slot active">🪨</div>
-  <div class="slot"></div>
-  <div class="slot"></div>
-  <div class="slot"></div>
-  <div class="slot"></div>
- </div>
+    <button
+      class="gameButton"
+      id="jump">
+
+      ПРЫЖОК
+
+    </button>
+
+    <button
+      class="gameButton"
+      id="hit">
+
+      УДАР
+
+    </button>
+
+    <button
+      class="gameButton big"
+      id="gather">
+
+      ДОБЫТЬ
+
+    </button>
+
+  </div>
+
+
+  <!-- HOTBAR -->
+
+  <div id="hotbar">
+
+    <div class="slot active">
+      🪨
+    </div>
+
+    <div class="slot"></div>
+
+    <div class="slot"></div>
+
+    <div class="slot"></div>
+
+    <div class="slot"></div>
+
+  </div>
+
 </div>
+
+
+<!-- =====================================================
+     СМЕРТЬ
+===================================================== -->
 
 <div id="death">
- <h1>ВЫ ПОГИБЛИ</h1>
- <p>Вас атаковал медведь</p>
- <button class="menuButton" id="respawn">ВОЗРОДИТЬСЯ</button>
+
+  <h1>
+    ВЫ ПОГИБЛИ
+  </h1>
+
+  <p>
+    Вас убил медведь
+  </p>
+
+  <button
+    class="menuButton"
+    id="respawn">
+
+    ВОЗРОДИТЬСЯ
+
+  </button>
+
 </div>
 
+
+<!-- =====================================================
+     ИНВЕНТАРЬ КНОПКА
+===================================================== -->
+
+<button id="inventoryButton">
+  🎒
+</button>
+
+
+<!-- =====================================================
+     КРАФТ КНОПКА
+===================================================== -->
+
+<button id="craftButton6">
+  🔨 КРАФТ
+</button>
+
+
+<!-- =====================================================
+     THREE.JS IMPORT MAP
+===================================================== -->
+
 <script type="importmap">
+
 {
-  "imports":{
-    "three":"https://unpkg.com/three@0.169.0/build/three.module.js"
+  "imports": {
+    "three":
+      "https://unpkg.com/three@0.169.0/build/three.module.js"
   }
 }
+
 </script>
+
+
+<!-- =====================================================
+     ОСНОВНОЙ MODULE-СКРИПТ
+===================================================== -->
 
 <script type="module">
 
 import * as THREE from "three";
 
-const $=id=>document.getElementById(id);
-const rand=(a,b)=>a+Math.random()*(b-a);
-const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
 
-const WORLD=120;
-const WATER=-2.2;
+// -----------------------------------------------------
+// КОРОТКИЙ ДОСТУП К DOM
+// -----------------------------------------------------
 
-const scene=new THREE.Scene();
-scene.background=new THREE.Color(0x9dbbd0);
-scene.fog=new THREE.Fog(0x9dbbd0,55,150);
+const $ =
+  id => document.getElementById(id);
 
-const camera=new THREE.PerspectiveCamera(
- 72,innerWidth/innerHeight,.05,400
+
+// -----------------------------------------------------
+// ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
+// -----------------------------------------------------
+
+const rand =
+  (a,b) =>
+    a + Math.random() * (b-a);
+
+
+const clamp =
+  (v,a,b) =>
+    Math.min(
+      b,
+      Math.max(a,v)
+    );
+
+
+// -----------------------------------------------------
+// НАСТРОЙКИ МИРА
+// -----------------------------------------------------
+
+const WORLD = 120;
+
+const WATER = -2.2;
+
+
+// -----------------------------------------------------
+// СОСТОЯНИЕ ИНВЕНТАРЯ
+// ВАЖНО: ТЕПЕРЬ ТОЛЬКО ОДИН inv
+// -----------------------------------------------------
+
+const inv = {
+
+  wood: 0,
+
+  stone: 0,
+
+  iron: 0,
+
+  sulfur: 0,
+
+  meat: 0
+
+};
+
+
+// -----------------------------------------------------
+// ДЕЛАЕМ ИНВЕНТАРЬ ДОСТУПНЫМ ДЛЯ ОСТАЛЬНЫХ SCRIPT
+// -----------------------------------------------------
+
+window.gameInv = inv;
+
+
+// -----------------------------------------------------
+// СОСТОЯНИЕ ИГРЫ
+// -----------------------------------------------------
+
+let gameStarted = false;
+
+let showFPS = true;
+
+let cooldown = 0;
+
+
+// -----------------------------------------------------
+// THREE SCENE
+// -----------------------------------------------------
+
+const scene =
+  new THREE.Scene();
+
+scene.background =
+  new THREE.Color(
+    0x9dbbd0
+  );
+
+scene.fog =
+  new THREE.Fog(
+    0x9dbbd0,
+    55,
+    150
+  );
+
+
+// -----------------------------------------------------
+// CAMERA
+// -----------------------------------------------------
+
+const camera =
+  new THREE.PerspectiveCamera(
+    72,
+    innerWidth / innerHeight,
+    .05,
+    400
+  );
+
+
+// -----------------------------------------------------
+// RENDERER
+// -----------------------------------------------------
+
+const renderer =
+  new THREE.WebGLRenderer({
+
+    antialias: false,
+
+    powerPreference:
+      "high-performance"
+
+  });
+
+
+renderer.setPixelRatio(
+  Math.min(
+    devicePixelRatio,
+    1.5
+  )
 );
 
-const renderer=new THREE.WebGLRenderer({
- antialias:false,
- powerPreference:"high-performance"
-});
 
-renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));
-renderer.setSize(innerWidth,innerHeight);
-$("game").appendChild(renderer.domElement);
+renderer.setSize(
+  innerWidth,
+  innerHeight
+);
 
-addEventListener("resize",()=>{
- camera.aspect=innerWidth/innerHeight;
- camera.updateProjectionMatrix();
- renderer.setSize(innerWidth,innerHeight);
-});
 
-scene.add(new THREE.HemisphereLight(0xcfe6ff,0x39452b,1));
+$("game")
+  .appendChild(
+    renderer.domElement
+  );
 
-const sun=new THREE.DirectionalLight(0xfff0cf,1.1);
-sun.position.set(40,70,20);
+
+// -----------------------------------------------------
+// RESIZE
+// -----------------------------------------------------
+
+addEventListener(
+  "resize",
+  () => {
+
+    camera.aspect =
+      innerWidth /
+      innerHeight;
+
+    camera.updateProjectionMatrix();
+
+    renderer.setSize(
+      innerWidth,
+      innerHeight
+    );
+
+  }
+);
+
+
+// -----------------------------------------------------
+// СВЕТ
+// -----------------------------------------------------
+
+scene.add(
+  new THREE.HemisphereLight(
+    0xcfe6ff,
+    0x39452b,
+    1
+  )
+);
+
+
+const sun =
+  new THREE.DirectionalLight(
+    0xfff0cf,
+    1.1
+  );
+
+
+sun.position.set(
+  40,
+  70,
+  20
+);
+
+
 scene.add(sun);
 
-function terrainHeight(x,z){
- let h=
-  Math.sin(x*.045)*2.4+
-  Math.cos(z*.05)*2.2+
-  Math.sin((x+z)*.021)*3.4;
 
- h+=Math.sin(x*.12)*.35+Math.cos(z*.14)*.35;
+// -----------------------------------------------------
+// ПОДГОТОВКА HUD
+// -----------------------------------------------------
 
- const river=Math.exp(
-  -Math.pow((z-Math.sin(x*.03)*12)/8,2)
- )*6.5;
+function updateHealth() {
 
- h-=river;
+  $("healthFill")
+    .style.width =
+      clamp(
+        player.hp,
+        0,
+        100
+      ) + "%";
 
- const d=Math.sqrt(x*x+z*z);
- h-=Math.max(0,(d-88)*.5);
-
- return h;
 }
 
-const terrain=new THREE.PlaneGeometry(
- WORLD*2,WORLD*2,140,140
+
+function updateResources() {
+
+  $("wood").textContent =
+    inv.wood;
+
+  $("stone").textContent =
+    inv.stone;
+
+  $("iron").textContent =
+    inv.iron;
+
+  $("sulfur").textContent =
+    inv.sulfur;
+
+  $("meat").textContent =
+    inv.meat;
+
+}
+
+
+// -----------------------------------------------------
+// Пока это всё для ЧАСТИ 1.
+// Следующие части добавят:
+// мир → ресурсы → игрок → медведей → инвентарь.
+// -----------------------------------------------------
+
+console.log(
+  "Rust Mobile: часть 1 загружена"
 );
-
-terrain.rotateX(-Math.PI/2);
-
-const pos=terrain.attributes.position;
-const colors=[];
-
-const grass=new THREE.Color(0x5f8f3e);
-const dry=new THREE.Color(0x8d9a4d);
-const dirt=new THREE.Color(0x796143);
-const rock=new THREE.Color(0x888985);
-const sand=new THREE.Color(0xc9bd8e);
-
-for(let i=0;i<pos.count;i++){
- const x=pos.getX(i);
- const z=pos.getZ(i);
- const y=terrainHeight(x,z);
-
- pos.setY(i,y);
-
- let c;
- if(y<WATER+.7)c=sand;
- else if(y>7)c=rock;
- else if(y>4.5)c=dirt;
- else if(Math.sin(x*.05)+Math.cos(z*.04)>.6)c=dry;
- else c=grass;
-
- colors.push(c.r,c.g,c.b);
-}
-
-terrain.setAttribute(
- "color",
- new THREE.Float32BufferAttribute(colors,3)
-);
-
-terrain.computeVertexNormals();
-
-scene.add(new THREE.Mesh(
- terrain,
- new THREE.MeshLambertMaterial({vertexColors:true})
-));
-
-const water=new THREE.Mesh(
- new THREE.PlaneGeometry(WORLD*2.4,WORLD*2.4),
- new THREE.MeshLambertMaterial({
-  color:0x2e6d85,
-  transparent:true,
-  opacity:.78
- })
-);
-
-water.rotation.x=-Math.PI/2;
-water.position.y=WATER;
-scene.add(water);
-
-const materials={
- bark:new THREE.MeshLambertMaterial({color:0x60432d}),
- leaf:new THREE.MeshLambertMaterial({color:0x3f7735}),
- leaf2:new THREE.MeshLambertMaterial({color:0x58883a}),
- pine:new THREE.MeshLambertMaterial({color:0x2e5b32}),
- rock:new THREE.MeshStandardMaterial({
-  color:0x3a3a38,roughness:1,metalness:0,flatShading:true
- }),
- iron:new THREE.MeshLambertMaterial({
-  color:0xa66f45,flatShading:true
- }),
- sulfur:new THREE.MeshStandardMaterial({
-  color:0xa49b5a,roughness:1,metalness:0,flatShading:true
- })
-};
-
-function bumpy(r){
- const g=new THREE.IcosahedronGeometry(r,1);
- const p=g.attributes.position;
-
- for(let i=0;i<p.count;i++){
-  const x=p.getX(i),y=p.getY(i),z=p.getZ(i);
-  const n=1+Math.sin(x*5)*Math.cos(y*4)*Math.sin(z*6)*.18;
-  p.setXYZ(i,x*n,y*n,z*n);
- }
-
- g.computeVertexNormals();
- return g;
-}
-
-const resources=[];
-
-function addResource(group,data){
- group.position.y=terrainHeight(group.position.x,group.position.z);
- scene.add(group);
-
- const r={
-  group,
-  ...data,
-  hp:data.maxHp,
-  alive:true
- };
-
- resources.push(r);
- return r;
-}
-
-function makeTree(x,z,type){
- const g=new THREE.Group();
- g.position.set(x,0,z);
-
- const trunk=new THREE.Mesh(
-  new THREE.CylinderGeometry(.25,.45,4,7),
-  materials.bark
- );
-
- trunk.position.y=2;
- g.add(trunk);
-
- if(type===0){
-  for(let i=0;i<3;i++){
-   const cone=new THREE.Mesh(
-    new THREE.ConeGeometry(2.1-i*.45,2.4,7),
-    materials.pine
-   );
-   cone.position.y=3.2+i*1.25;
-   g.add(cone);
-  }
- }else{
-  const crown=new THREE.Mesh(
-   bumpy(type===1?2.2:1.7),
-   type===1?materials.leaf:materials.leaf2
-  );
-
-  crown.position.y=type===1?4.3:5;
-  crown.scale.y=.8;
-  g.add(crown);
- }
-
- g.scale.setScalar(rand(.85,1.2));
- g.rotation.y=rand(0,Math.PI*2);
-
- return addResource(g,{
-  type:"tree",
-  name:"Дерево",
-  maxHp:5,
-  radius:1.1,
-  drop:"wood",
-  dropN:2
- });
-}
-
-function makeOre(x,z,type){
- const g=new THREE.Group();
- g.position.set(x,0,z);
-
- const base=new THREE.Mesh(
-  bumpy(1.15),
-  materials.rock
- );
-
- base.scale.y=.7;
- base.position.y=.5;
- g.add(base);
-
- const mat=
-  type==="iron"?materials.iron:
-  type==="sulfur"?materials.sulfur:
-  materials.rock;
-
- for(let i=0;i<4;i++){
-  const n=new THREE.Mesh(
-   bumpy(type==="stone"?.5:.3),
-   mat
-  );
-
-  n.position.set(
-   rand(-.7,.7),
-   rand(.5,1),
-   rand(-.7,.7)
-  );
-
-  g.add(n);
- }
-
- const names={
-  stone:"Камень",
-  iron:"Железная руда",
-  sulfur:"Сера"
- };
-
- return addResource(g,{
-  type:"ore",
-  name:names[type],
-  maxHp:type==="stone"?4:6,
-  radius:1.3,
-  drop:type,
-  dropN:type==="stone"?3:2
- });
-}
-
-function land(x,z){
- return terrainHeight(x,z)>WATER+.6;
-}
-
-function scatter(count,callback){
- let placed=0,tries=0;
-
- while(placed<count&&tries<count*30){
-  tries++;
-
-  const x=rand(-82,82);
-  const z=rand(-82,82);
-
-  if(!land(x,z))continue;
-  if(Math.hypot(x,z)<8)continue;
-
-  callback(x,z);
-  placed++;
- }
-}
-
-scatter(75,(x,z)=>makeTree(x,z,Math.floor(rand(0,3))));
-scatter(15,(x,z)=>makeOre(x,z,"stone"));
-scatter(8,(x,z)=>makeOre(x,z,"iron"));
-scatter(7,(x,z)=>makeOre(x,z,"sulfur"));
-
-/* ВАЖНО:
-   inv объявлен только ОДИН раз.
-*/
-
-const player={
- pos:new THREE.Vector3(0,0,6),
- vy:0,
- yaw:0,
- pitch:0,
- hp:100,
- eye:1.7,
- onGround:true,
- alive:true
-};
-
-const inv={
- wood:0,
- stone:0,
- iron:0,
- sulfur:0,
- meat:0
-};
-
-window.gameInv=inv;
-const hand=new THREE.Group();
-camera.add(hand);
-scene.add(camera);
-
-hand.position.set(.08,-.3,-.5);
-
-const skin=new THREE.MeshLambertMaterial({color:0xc08a62});
-const sleeve=new THREE.MeshLambertMaterial({color:0x555555});
-
-const arm=new THREE.Mesh(
- new THREE.CylinderGeometry(.08,.1,.5,8),
- skin
-);
-
-arm.rotation.set(1.15,0,-.25);
-arm.position.set(.06,-.2,.12);
-hand.add(arm);
-
-const cuff=new THREE.Mesh(
- new THREE.CylinderGeometry(.1,.11,.16,8),
- sleeve
-);
-
-cuff.rotation.copy(arm.rotation);
-cuff.position.set(.1,-.36,.24);
-hand.add(cuff);
-
-const fist=new THREE.Mesh(
- bumpy(.11),
- skin
-);
-
-fist.position.set(0,.02,-.03);
-hand.add(fist);
-
-const stoneHeld=new THREE.Mesh(
- bumpy(.15),
- new THREE.MeshStandardMaterial({
-  color:0x999999,
-  roughness:.9
- })
-);
-
-stoneHeld.position.set(0,.06,-.08);
-hand.add(stoneHeld);
-
-/* ================= BEARS ================= */
-
-const bears=[];
-
-function makeBear(x,z){
- const g=new THREE.Group();
-
- const fur=new THREE.MeshLambertMaterial({color:0x493426});
- const dark=new THREE.MeshLambertMaterial({color:0x281b14});
-
- const body=new THREE.Mesh(
-  bumpy(.9),
-  fur
- );
-
- body.scale.set(1.35,.9,.95);
- body.position.y=1.15;
- g.add(body);
-
- const head=new THREE.Group();
- head.position.set(1.25,1.35,0);
-
- const headMesh=new THREE.Mesh(
-  bumpy(.45),
-  fur
- );
-
- head.add(headMesh);
-
- const nose=new THREE.Mesh(
-  new THREE.BoxGeometry(.4,.26,.3),
-  dark
- );
-
- nose.position.set(.4,-.08,0);
- head.add(nose);
-
- for(const side of[-1,1]){
-  const ear=new THREE.Mesh(
-   new THREE.SphereGeometry(.13,8,6),
-   fur
-  );
-
-  ear.position.set(-.1,.38,.24*side);
-  head.add(ear);
- }
-
- g.add(head);
-
- const legs=[];
-
- for(let i=0;i<4;i++){
-  const leg=new THREE.Mesh(
-   new THREE.CylinderGeometry(.16,.2,1.05,6),
-   fur
-  );
-
-  leg.position.set(
-   i<2?.75:-.7,
-   .52,
-   i%2?.45:-.45
-  );
-
-  g.add(leg);
-  legs.push(leg);
- }
-
- g.position.set(
-  x,
-  terrainHeight(x,z),
-  z
- );
-
- scene.add(g);
-
- const bear={
-  group:g,
-  head,
-  legs,
-  hp:100,
-  maxHp:100,
-  alive:true,
-  state:"wander",
-  dir:rand(0,Math.PI*2),
-  timer:rand(1,3),
-  attackCd:0,
-  walk:0
- };
-
- bears.push(bear);
- return bear;
-}
-
-makeBear(28,-18);
-makeBear(-34,26);
-makeBear(45,40);
-
-/* ================= SPAWN ================= */
-
-function spawnPlayer(){
- let x=0,z=6;
-
- for(let i=0;i<200;i++){
-  const tx=rand(-30,30);
-  const tz=rand(-30,30);
-
-  if(
-   land(tx,tz)&&
-   terrainHeight(tx,tz)>WATER+1.5
-  ){
-   let far=true;
-
-   for(const b of bears){
-    if(
-     b.alive&&
-     Math.hypot(
-      tx-b.group.position.x,
-      tz-b.group.position.z
-     )<30
-    ){
-     far=false;
-     break;
-    }
-   }
-
-   if(far){
-    x=tx;
-    z=tz;
-    break;
-   }
-  }
- }
-
- player.pos.set(
-  x,
-  terrainHeight(x,z),
-  z
- );
-
- player.vy=0;
- player.yaw=0;
- player.pitch=0;
- player.hp=100;
- player.alive=true;
- player.onGround=true;
-
- updateHealth();
- updateResources();
-}
-
-/* ================= UI ================= */
-
-function updateHealth(){
- $("healthFill").style.width=
-  clamp(player.hp,0,100)+"%";
-}
-
-function updateResources(){
- $("wood").textContent=inv.wood;
- $("stone").textContent=inv.stone;
- $("iron").textContent=inv.iron;
- $("sulfur").textContent=inv.sulfur;
- $("meat").textContent=inv.meat;
-
- updateInventoryUI?.();
- updateCraft6?.();
-}
-
-/* ================= JOYSTICK ================= */
-
-const joystick=$("joystick");
-const knob=$("knob");
-
-const movement={
- x:0,
- y:0
-};
-
-let joystickId=null;
-const joystickRadius=50;
-
-let center={
- x:0,
- y:0
-};
-
-function joystickMove(e){
- let dx=e.clientX-center.x;
- let dy=e.clientY-center.y;
-
- const distance=Math.hypot(dx,dy);
-
- if(distance>joystickRadius){
-  dx=dx/distance*joystickRadius;
-  dy=dy/distance*joystickRadius;
- }
-
- knob.style.transform=
-  `translate(${dx}px,${dy}px)`;
-
- movement.x=dx/joystickRadius;
- movement.y=-dy/joystickRadius;
-}
-
-joystick.addEventListener("pointerdown",e=>{
- e.preventDefault();
- e.stopPropagation();
-
- joystickId=e.pointerId;
-
- const r=joystick.getBoundingClientRect();
-
- center={
-  x:r.left+r.width/2,
-  y:r.top+r.height/2
- };
-
- joystick.setPointerCapture(e.pointerId);
- joystickMove(e);
-});
-
-joystick.addEventListener("pointermove",e=>{
- if(e.pointerId!==joystickId)return;
- e.preventDefault();
- joystickMove(e);
-});
-
-function joystickEnd(e){
- if(e.pointerId!==joystickId)return;
-
- joystickId=null;
- movement.x=0;
- movement.y=0;
-
- knob.style.transform="translate(0px,0px)";
-}
-
-joystick.addEventListener("pointerup",joystickEnd);
-joystick.addEventListener("pointercancel",joystickEnd);
-
-/* ================= CAMERA TOUCH ================= */
-
-let lookId=null;
-
-let lastLook={
- x:0,
- y:0
-};
-
-const sensitivity=.0032;
-
-addEventListener("pointerdown",e=>{
- if(!gameStarted)return;
-
- if(
-  e.target.closest(
-   "#joystick,.gameButton,.slot,.menuButton,#inventoryButton,#craftButton6"
-  )
- )return;
-
- if(
-  e.target.closest("#inventory,#craftMenu6")
- )return;
-
- if(e.clientX<innerWidth*.42)return;
-
- lookId=e.pointerId;
-
- lastLook={
-  x:e.clientX,
-  y:e.clientY
- };
-});
-
-addEventListener("pointermove",e=>{
- if(e.pointerId!==lookId)return;
-
- const dx=e.clientX-lastLook.x;
- const dy=e.clientY-lastLook.y;
-
- lastLook={
-  x:e.clientX,
-  y:e.clientY
- };
-
- player.yaw-=dx*sensitivity;
-
- player.pitch=clamp(
-  player.pitch-dy*sensitivity,
-  -1.35,
-  1.35
- );
-});
-
-addEventListener("pointerup",e=>{
- if(e.pointerId===lookId)lookId=null;
-});
-
-addEventListener("pointercancel",e=>{
- if(e.pointerId===lookId)lookId=null;
-});
-
-/* ================= MOVEMENT ================= */
-
-function updatePlayer(dt){
- let mx=movement.x;
- let mz=movement.y;
-
- const length=Math.hypot(mx,mz);
-
- if(length>.05&&player.alive){
-  mx/=Math.max(1,length);
-  mz/=Math.max(1,length);
-
-  const sin=Math.sin(player.yaw);
-  const cos=Math.cos(player.yaw);
-
-  const dx=-sin*mz+cos*mx;
-  const dz=-cos*mz-sin*mx;
-
-  const speed=5.2;
-
-  const nx=player.pos.x+dx*speed*dt;
-  const nz=player.pos.z+dz*speed*dt;
-
-  if(
-   Math.hypot(nx,nz)<92&&
-   terrainHeight(nx,nz)>WATER-.8
-  ){
-   let blocked=false;
-
-   for(const r of resources){
-    if(!r.alive)continue;
-
-    if(
-     Math.hypot(
-      nx-r.group.position.x,
-      nz-r.group.position.z
-     )<r.radius*.55
-    ){
-     blocked=true;
-     break;
-    }
-   }
-
-   if(!blocked){
-    player.pos.x=nx;
-    player.pos.z=nz;
-   }
-  }
- }
-
- player.vy-=17*dt;
- player.pos.y+=player.vy*dt;
-
- const ground=terrainHeight(
-  player.pos.x,
-  player.pos.z
- );
-
- if(player.pos.y<=ground){
-  player.pos.y=ground;
-  player.vy=0;
-  player.onGround=true;
- }
-
- camera.position.set(
-  player.pos.x,
-  player.pos.y+player.eye,
-  player.pos.z
- );
-
- camera.rotation.order="YXZ";
- camera.rotation.y=player.yaw;
- camera.rotation.x=player.pitch;
-}
-
-function jump(){
- if(player.alive&&player.onGround){
-  player.vy=6.4;
-  player.onGround=false;
- }
-}
-
-$("jump").addEventListener("pointerdown",e=>{
- e.preventDefault();
- e.stopPropagation();
- jump();
-});
-
-/* ================= AIM ================= */
-
-function forward(){
- const v=new THREE.Vector3(0,0,-1);
- v.applyQuaternion(camera.quaternion);
- return v;
-}
-
-function aimResource(){
- const origin=camera.getWorldPosition(
-  new THREE.Vector3()
- );
-
- const dir=forward();
-
- let best=null;
- let bestDist=4.2;
-
- for(const r of resources){
-  if(!r.alive)continue;
-
-  const center=r.group.position.clone();
-  center.y+=1.2;
-
-  const to=center.clone().sub(origin);
-  const distance=to.length();
-
-  if(distance>bestDist+r.radius)continue;
-
-  const projection=to.dot(dir);
-  if(projection<=0)continue;
-
-  const perpendicular=to.clone()
-   .sub(
-    dir.clone().multiplyScalar(projection)
-   )
-   .length();
-
-  if(
-   perpendicular<r.radius+.5&&
-   distance<bestDist
-  ){
-   best=r;
-   bestDist=distance;
-  }
- }
-
- return best;
-}
-
-function aimBear(){
- const origin=camera.getWorldPosition(
-  new THREE.Vector3()
- );
-
- const dir=forward();
-
- let best=null;
- let bestDistance=4.5;
-
- for(const b of bears){
-  if(!b.alive)continue;
-
-  const center=b.group.position.clone();
-  center.y+=1.2;
-
-  const to=center.clone().sub(origin);
-  const distance=to.length();
-
-  if(distance>bestDistance)continue;
-
-  const projection=to.dot(dir);
-  if(projection<=0)continue;
-
-  const perpendicular=to.clone()
-   .sub(
-    dir.clone().multiplyScalar(projection)
-   )
-   .length();
-
-  if(perpendicular<1.3){
-   best=b;
-   bestDistance=distance;
-  }
- }
-
- return best;
-}
-
-/* ================= DAMAGE PLAYER ================= */
-
-function damage(amount){
- if(!player.alive)return;
-
- player.hp=clamp(
-  player.hp-amount,
-  0,
-  100
- );
-
- updateHealth();
-
- if(player.hp<=0){
-  player.alive=false;
-  movement.x=0;
-  movement.y=0;
-  $("death").style.display="flex";
- }
-}
-
-/* ================= ACTION ================= */
-
-let cooldown=0;
-
-function gather(){
- if(
-  !gameStarted||
-  !player.alive||
-  cooldown>0
- )return;
-
- cooldown=.5;
-
- const bear=aimBear();
-
- if(bear){
-  hitBear(bear);
-  return;
- }
-
- const resource=aimResource();
-
- if(!resource)return;
-
- resource.hp--;
-
- if(resource.hp<=0){
-  resource.alive=false;
-  scene.remove(resource.group);
-
-  inv[resource.drop]+=
-   resource.dropN+
-   Math.floor(rand(0,2));
- }else{
-  inv[resource.drop]++;
- }
-
- updateResources();
-}
-
-function strike(){
- if(spearCrafted6&&selectedItem==="spear"){
-  const bear=aimBear();
-
-  if(bear){
-   useSpear(bear);
-   return;
-  }
- }
-
- gather();
-}
-
-$("gather").addEventListener("pointerdown",e=>{
- e.preventDefault();
- e.stopPropagation();
- gather();
-});
-
-$("hit").addEventListener("pointerdown",e=>{
- e.preventDefault();
- e.stopPropagation();
- strike();
-});
-/* ================= BEAR DAMAGE ================= */
-
-function hitBear(bear){
- if(!bear||!bear.alive)return;
-
- bear.hp-=18;
- bear.state="chase";
-
- if(bear.hp<=0){
-  bear.alive=false;
-  bear.group.rotation.z=Math.PI/2;
-  inv.meat+=3;
-  updateResources();
- }
-}
-
-window.useSpear=function(bear){
- if(!bear||!bear.alive)return;
-
- bear.hp-=35;
- bear.state="chase";
-
- if(bear.hp<=0){
-  bear.alive=false;
-  bear.group.rotation.z=Math.PI/2;
-  inv.meat+=3;
-  updateResources();
- }
-};
-
-/* ================= BEAR AI ================= */
-
-function updateBears(dt){
- for(const bear of bears){
-  if(!bear.alive)continue;
-
-  const p=bear.group.position;
-
-  const dx=player.pos.x-p.x;
-  const dz=player.pos.z-p.z;
-  const distance=Math.hypot(dx,dz);
-
-  if(player.alive&&distance<14){
-   bear.state="chase";
-  }else if(
-   bear.state==="chase"&&
-   distance>28
-  ){
-   bear.state="wander";
-  }
-
-  let speed=0;
-
-  if(
-   bear.state==="chase"&&
-   player.alive
-  ){
-   bear.dir=Math.atan2(dx,dz);
-
-   speed=distance>2.3?3.5:0;
-
-   bear.attackCd-=dt;
-
-   if(
-    distance<2.6&&
-    bear.attackCd<=0
-   ){
-    bear.attackCd=1.6;
-    damage(16);
-   }
-  }else{
-   bear.timer-=dt;
-
-   if(bear.timer<=0){
-    bear.timer=rand(1.5,4);
-    bear.dir=rand(0,Math.PI*2);
-   }
-
-   speed=1.3;
-  }
-
-  if(speed>0){
-   const nx=p.x+
-    Math.sin(bear.dir)*speed*dt;
-
-   const nz=p.z+
-    Math.cos(bear.dir)*speed*dt;
-
-   if(
-    Math.hypot(nx,nz)<88&&
-    terrainHeight(nx,nz)>WATER+.4
-   ){
-    p.x=nx;
-    p.z=nz;
-   }
-  }
-
-  p.y=terrainHeight(p.x,p.z);
-
-  bear.group.rotation.y=
-   bear.dir-Math.PI/2;
- }
-}
-
-/* ================= HOTBAR ================= */
-
-let selectedItem="stone";
-let spearCrafted6=false;
-
-const slots=document.querySelectorAll("#hotbar .slot");
-
-slots.forEach(slot=>{
- slot.addEventListener("pointerdown",e=>{
-  e.preventDefault();
-  e.stopPropagation();
-
-  slots.forEach(s=>s.classList.remove("active"));
-  slot.classList.add("active");
-
-  selectedItem=slot.dataset.item||"stone";
- });
-});
-
-function addSpearToHotbar6(){
- const all=document.querySelectorAll("#hotbar .slot");
-
- let spearSlot=null;
-
- for(const slot of all){
-  if(!slot.textContent.trim()){
-   spearSlot=slot;
-   break;
-  }
- }
-
- if(!spearSlot){
-  spearSlot=all[all.length-1];
- }
-
- spearSlot.textContent="🗡️";
- spearSlot.dataset.item="spear";
- spearSlot.classList.add("spearSlot6");
-
- all.forEach(s=>s.classList.remove("active"));
- spearSlot.classList.add("active");
-
- selectedItem="spear";
-}
-
-/* ================= MENU ================= */
-
-let gameStarted=false;
-
-$("playButton").addEventListener(
- "click",
- async()=>{
-  $("menu").style.display="none";
-  $("hud").style.display="block";
-
-  gameStarted=true;
-
-  spawnPlayer();
-
-  try{
-   if(document.documentElement.requestFullscreen){
-    await document.documentElement.requestFullscreen();
-   }
-  }catch(e){}
- }
-);
-
-/* ================= SETTINGS ================= */
-
-$("settingsButton").addEventListener(
- "click",
- ()=>{
-  $("menu").style.display="none";
-  $("settings").style.display="block";
- }
-);
-
-$("backButton").addEventListener(
- "click",
- ()=>{
-  $("settings").style.display="none";
-  $("menu").style.display="flex";
- }
-);
-
-/* ================= FPS ================= */
-
-let showFPS=true;
-let frames=0;
-let fpsTime=performance.now();
-
-$("fpsButton").addEventListener(
- "click",
- ()=>{
-  showFPS=!showFPS;
-
-  $("fpsStatus").textContent=
-   showFPS?"ВКЛ":"ВЫКЛ";
-
-  if(!showFPS){
-   $("fps").style.display="none";
-  }
- }
-);
-
-function updateFPS(){
- frames++;
-
- const now=performance.now();
-
- if(now-fpsTime>=500){
-  const value=Math.round(
-   frames/((now-fpsTime)/1000)
-  );
-
-  $("fps").textContent="FPS: "+value;
-
-  if(showFPS&&gameStarted){
-   $("fps").style.display="block";
-  }
-
-  frames=0;
-  fpsTime=now;
- }
-
- requestAnimationFrame(updateFPS);
-}
-
-updateFPS();
-
-/* ================= DEATH ================= */
-
-$("respawn").addEventListener(
- "click",
- ()=>{
-  $("death").style.display="none";
-
-  for(const b of bears){
-   b.state="wander";
-   b.hp=b.maxHp;
-   b.alive=true;
-   b.group.rotation.z=0;
-  }
-
-  spawnPlayer();
- }
-);
-
-/* ================= INVENTORY UI ================= */
-
-function updateInventoryUI(){
- const values={
-  invWood:inv.wood,
-  invStone:inv.stone,
-  invIron:inv.iron,
-  invSulfur:inv.sulfur,
-  invMeat:inv.meat
- };
-
- for(const id in values){
-  const element=$(id);
-  if(element){
-   element.textContent=values[id];
-  }
- }
-}
-
-/* ================= INVENTORY OPEN/CLOSE ================= */
-
-const inventoryButton=$("inventoryButton");
-const inventory=$("inventory");
-const closeInventory=$("closeInventory");
-
-inventoryButton.addEventListener(
- "pointerdown",
- e=>{
-  e.preventDefault();
-  e.stopPropagation();
-
-  if(!gameStarted)return;
-
-  inventory.style.display="flex";
-  updateInventoryUI();
- }
-);
-
-closeInventory.addEventListener(
- "pointerdown",
- e=>{
-  e.preventDefault();
-  e.stopPropagation();
-
-  inventory.style.display="none";
- }
-);
-
-inventory.addEventListener(
- "pointerdown",
- e=>{
-  if(e.target===inventory){
-   inventory.style.display="none";
-  }
- }
-);
-
-/* ================= CRAFT UI ================= */
-
-const craftButton6=$("craftButton6");
-const craftMenu6=$("craftMenu6");
-const closeCraft6=$("closeCraft6");
-const craftSpear6=$("craftSpear6");
-const craftMessage6=$("craftMessage6");
-
-function updateCraft6(){
- if(typeof inv==="undefined")return;
-
- const wood=inv.wood;
-
- if(spearCrafted6){
-  craftSpear6.disabled=true;
-  craftMessage6.textContent="Копьё уже создано";
-  return;
- }
-
- if(wood<10){
-  craftSpear6.disabled=true;
-  craftMessage6.textContent=
-   "Нужно ещё "+(10-wood)+" дерева";
- }else{
-  craftSpear6.disabled=false;
-  craftMessage6.textContent="Готово к созданию";
- }
-}
-
-craftButton6.addEventListener(
- "pointerdown",
- e=>{
-  e.preventDefault();
-  e.stopPropagation();
-
-  if(!gameStarted)return;
-
-  craftMenu6.style.display="flex";
-  updateCraft6();
- }
-);
-
-closeCraft6.addEventListener(
- "pointerdown",
- e=>{
-  e.preventDefault();
-  e.stopPropagation();
-
-  craftMenu6.style.display="none";
- }
-);
-
-craftMenu6.addEventListener(
- "pointerdown",
- e=>{
-  if(e.target===craftMenu6){
-   craftMenu6.style.display="none";
-  }
- }
-);
-
-craftSpear6.addEventListener(
- "pointerdown",
- e=>{
-  e.preventDefault();
-  e.stopPropagation();
-
-  if(spearCrafted6)return;
-
-  if(inv.wood<10){
-   craftMessage6.textContent=
-    "Недостаточно дерева!";
-   return;
-  }
-
-  inv.wood-=10;
-  spearCrafted6=true;
-
-  addSpearToHotbar6();
-  updateResources();
-
-  craftMessage6.textContent="Копьё создано!";
-  craftSpear6.disabled=true;
-
-  setTimeout(()=>{
-   craftMenu6.style.display="none";
-  },500);
- }
-);
-
-document.addEventListener(
- "keydown",
- e=>{
-  if(e.key==="Escape"){
-   inventory.style.display="none";
-   craftMenu6.style.display="none";
-   $("settings").style.display="none";
-  }
- }
-);
-
-/* ================= GAME LOOP ================= */
-
-const clock=new THREE.Clock();
-
-function loop(){
- requestAnimationFrame(loop);
-
- const dt=Math.min(
-  .05,
-  clock.getDelta()
- );
-
- if(gameStarted){
-  updatePlayer(dt);
-  updateBears(dt);
-
-  if(cooldown>0){
-   cooldown-=dt;
-  }
-
-  water.position.y=
-   WATER+
-   Math.sin(performance.now()*.001)*.05;
-
-  updateTarget();
- }
-
- renderer.render(scene,camera);
-}
-
-loop();
-  /* ================= TARGET INFO ================= */
-
-function updateTarget(){
- const target=$("target");
-
- if(!gameStarted||!player.alive){
-  target.style.display="none";
-  return;
- }
-
- const bear=aimBear();
-
- if(bear){
-  target.textContent=
-   "МЕДВЕДЬ  HP: "+Math.max(0,bear.hp);
-
-  target.style.display="block";
-  return;
- }
-
- const resource=aimResource();
-
- if(resource){
-  target.textContent=
-   resource.name+"  HP: "+Math.max(0,resource.hp);
-
-  target.style.display="block";
-  return;
- }
-
- target.style.display="none";
-}
-
-</script>
-
-<button id="inventoryButton">🎒</button>
-
-<div id="inventory">
-
- <div class="inventoryWindow">
-
-  <button id="closeInventory">✕</button>
-
-  <div class="inventoryTitle">
-   ИНВЕНТАРЬ
-  </div>
-
-  <div class="inventoryContent">
-
-   <div class="characterPanel">
-
-    <div class="characterTitle">
-     ПЕРСОНАЖ
-    </div>
-
-    <div class="character">
-
-     <div class="characterHead"></div>
-
-     <div class="characterBody">
-      <div class="characterArm left"></div>
-      <div class="characterArm right"></div>
-      <div class="characterLeg left"></div>
-      <div class="characterLeg right"></div>
-     </div>
-
-    </div>
-
-    <div class="equipment">
-
-     <div class="equipmentSlot">
-      ШЛЕМ
-     </div>
-
-     <div class="equipmentSlot">
-      ОРУЖИЕ
-     </div>
-
-     <div class="equipmentSlot">
-      БРОНЯ
-     </div>
-
-    </div>
-
-   </div>
-
-   <div class="itemsPanel">
-
-    <div class="itemsTitle">
-     ПРЕДМЕТЫ
-    </div>
-
-    <div class="inventoryGrid">
-
-     <div class="inventorySlot">
-      <span class="itemIcon">🪵</span>
-      <span class="itemName">Дерево</span>
-      <b id="invWood">0</b>
-     </div>
-
-     <div class="inventorySlot">
-      <span class="itemIcon">🪨</span>
-      <span class="itemName">Камень</span>
-      <b id="invStone">0</b>
-     </div>
-
-     <div class="inventorySlot">
-      <span class="itemIcon">⛓️</span>
-      <span class="itemName">Железо</span>
-      <b id="invIron">0</b>
-     </div>
-
-     <div class="inventorySlot">
-      <span class="itemIcon">🟡</span>
-      <span class="itemName">Сера</span>
-      <b id="invSulfur">0</b>
-     </div>
-
-     <div class="inventorySlot">
-      <span class="itemIcon">🍖</span>
-      <span class="itemName">Мясо</span>
-      <b id="invMeat">0</b>
-     </div>
-
-     <div class="inventorySlot empty"></div>
-     <div class="inventorySlot empty"></div>
-     <div class="inventorySlot empty"></div>
-     <div class="inventorySlot empty"></div>
-     <div class="inventorySlot empty"></div>
-     <div class="inventorySlot empty"></div>
-     <div class="inventorySlot empty"></div>
-
-    </div>
-
-   </div>
-
-  </div>
- </div>
-</div>
-
-<style>
-
-#inventoryButton,
-#craftButton6{
- -webkit-user-select:none;
- user-select:none;
-}
-
-</style>
-
-<button id="craftButton6">
- 🔨 КРАФТ
-</button>
-
-<div id="craftMenu6">
-
- <div class="craftWindow6">
-
-  <button id="closeCraft6">✕</button>
-
-  <div class="craftCategories6">
-
-   <button class="craftCategory6">
-    ⚡ БЫСТРЫЙ КРАФТ
-   </button>
-
-  </div>
-
-  <div class="craftContent6">
-
-   <div class="craftTitle6">
-    БЫСТРЫЙ КРАФТ
-   </div>
-
-   <div class="craftSubtitle6">
-    Доступные предметы
-   </div>
-
-   <div class="spearRecipe6">
-
-    <div class="spearIcon6">
-     🗡️
-    </div>
-
-    <div class="spearName6">
-     КОПЬЁ
-    </div>
-
-    <div class="spearCost6">
-     Стоимость:
-     <b>🪵 10 дерева</b>
-    </div>
-
-    <button id="craftSpear6">
-     СОЗДАТЬ
-    </button>
-
-    <div id="craftMessage6"></div>
-
-   </div>
-
-  </div>
-
- </div>
-</div>
-
-<script>
-
-/*
-  Здесь специально НЕТ второго const inv.
-  Инвентарь уже создан внутри module script.
-*/
-
-/* Дополнительная синхронизация интерфейса */
-
-function refreshAllUI(){
- if(typeof updateResources==="function"){
-  updateResources();
- }
-
- if(typeof updateInventoryUI==="function"){
-  updateInventoryUI();
- }
-
- if(typeof updateCraft6==="function"){
-  updateCraft6();
- }
-}
-
-/* Закрытие окон при запуске игры */
-
-$("playButton").addEventListener(
- "click",
- ()=>{
-  $("inventory").style.display="none";
-  $("craftMenu6").style.display="none";
- }
-);
-
-/* Запрет прокрутки при касании игровых элементов */
-
-[
- "#joystick",
- "#buttons",
- "#hotbar",
- "#inventoryButton",
- "#craftButton6",
- "#inventory",
- "#craftMenu6"
-].forEach(selector=>{
- const element=document.querySelector(selector);
-
- if(!element)return;
-
- element.addEventListener(
-  "touchmove",
-  e=>e.preventDefault(),
-  {passive:false}
- );
-});
-
-</script>
-<style>
-
-/* ================= ДОПОЛНИТЕЛЬНАЯ МОБИЛЬНАЯ НАСТРОЙКА ================= */
-
-@media(max-width:600px){
-
- #top{
-  top:6px;
-  left:6px;
-  gap:5px;
- }
-
- #health{
-  width:145px;
-  padding:6px;
- }
-
- #resources{
-  padding:5px 7px;
-  font-size:10px;
- }
-
- #joystick{
-  left:14px;
-  bottom:95px;
-  width:115px;
-  height:115px;
- }
-
- #buttons{
-  right:10px;
-  bottom:92px;
-  gap:7px;
- }
-
- .gameButton{
-  width:65px;
-  height:65px;
- }
-
- .gameButton.big{
-  width:78px;
-  height:78px;
- }
-
- #hotbar{
-  bottom:5px;
-  gap:4px;
- }
-
- .slot{
-  width:48px;
-  height:48px;
-  font-size:19px;
- }
-
- #crosshair{
-  transform:translate(-50%,-50%) scale(.85);
- }
-
-}
-
-</style>
-
-<script>
-
-/* ================= НАДЁЖНЫЙ ЗАПУСК ================= */
-
-/*
-  Если браузер не разрешает fullscreen,
-  игра всё равно продолжает запускаться.
-*/
-
-window.addEventListener(
- "error",
- event=>{
-  console.error(
-   "Ошибка игры:",
-   event.error||event.message
-  );
- }
-);
-
-/*
-  Обновляем UI после полной загрузки.
-*/
-
-window.addEventListener(
- "load",
- ()=>{
-  if(typeof updateResources==="function"){
-   updateResources();
-  }
-
-  if(typeof updateInventoryUI==="function"){
-   updateInventoryUI();
-  }
-
-  if(typeof updateCraft6==="function"){
-   updateCraft6();
-  }
- }
-);
-
-/* ================= ДОПОЛНИТЕЛЬНОЕ УПРАВЛЕНИЕ КЛАВИАТУРОЙ ================= */
-
-const keys={};
-
-addEventListener("keydown",e=>{
- keys[e.code]=true;
-
- if(e.code==="Space"){
-  e.preventDefault();
-
-  if(gameStarted){
-   jump();
-  }
- }
-
- if(e.code==="KeyE"){
-  if(gameStarted){
-   gather();
-  }
- }
-
- if(e.code==="KeyI"){
-  if(!gameStarted)return;
-
-  const invWindow=$("inventory");
-
-  invWindow.style.display=
-   invWindow.style.display==="flex"
-    ?"none"
-    :"flex";
-
-  updateInventoryUI();
- }
-
- if(e.code==="KeyC"){
-  if(!gameStarted)return;
-
-  const craft=$("craftMenu6");
-
-  craft.style.display=
-   craft.style.display==="flex"
-    ?"none"
-    :"flex";
-
-  updateCraft6();
- }
-});
-
-addEventListener("keyup",e=>{
- keys[e.code]=false;
-});
-
-/* ================= ПРОСТОЙ DESKTOP MOVEMENT ================= */
-
-function updateKeyboardMovement(){
-
- if(!gameStarted||!player.alive)return;
-
- let x=0;
- let y=0;
-
- if(keys.KeyA||keys.ArrowLeft)x-=1;
- if(keys.KeyD||keys.ArrowRight)x+=1;
- if(keys.KeyW||keys.ArrowUp)y+=1;
- if(keys.KeyS||keys.ArrowDown)y-=1;
-
- if(x!==0||y!==0){
-  movement.x=x;
-  movement.y=y;
- }else if(joystickId===null){
-  movement.x=0;
-  movement.y=0;
- }
-}
-
-/*
-  Маленький дополнительный цикл для клавиатуры.
-*/
-
-function keyboardLoop(){
- updateKeyboardMovement();
- requestAnimationFrame(keyboardLoop);
-}
-
-keyboardLoop();
-
-/* ================= ФИНАЛЬНАЯ ПРОВЕРКА ================= */
-
-console.log("Rust Mobile [web] успешно загружен.");
-console.log("Three.js:",THREE.REVISION);
-console.log("Ресурсов:",resources.length);
-console.log("Медведей:",bears.length);
 
 </script>
 
 </body>
 </html>
+<!-- ================= ЧАСТЬ 2/6 ================= -->
+<!-- МИР + РЕСУРСЫ + АНИМАЦИЯ КАМНЯ -->
+
+<script type="module">
+
+/*
+  Эта часть продолжает код после создания
+  THREE.Scene / Camera / Renderer.
+*/
+
+/* ================= НАСТРОЙКИ МИРА ================= */
+
+const WORLD_SIZE = 120;
+const WATER_LEVEL = -2.2;
+
+/* ================= ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ================= */
+
+function randomRange(min, max) {
+  return min + Math.random() * (max - min);
+}
+
+function clampValue(value, min, max) {
+  return Math.min(max, Math.max(min, value));
+}
+
+/* ================= ВЫСОТА ЗЕМЛИ ================= */
+
+function getTerrainHeight(x, z) {
+
+  let height =
+    Math.sin(x * 0.045) * 2.4 +
+    Math.cos(z * 0.05) * 2.2 +
+    Math.sin((x + z) * 0.021) * 3.4;
+
+  height +=
+    Math.sin(x * 0.12) * 0.35 +
+    Math.cos(z * 0.14) * 0.35;
+
+  /*
+    Небольшая извилистая река.
+  */
+
+  const river =
+    Math.exp(
+      -Math.pow(
+        (z - Math.sin(x * 0.03) * 12) / 8,
+        2
+      )
+    ) * 6.5;
+
+  height -= river;
+
+  /*
+    Края карты немного ниже.
+  */
+
+  const distance =
+    Math.sqrt(x * x + z * z);
+
+  height -=
+    Math.max(
+      0,
+      (distance - 88) * 0.5
+    );
+
+  return height;
+}
+
+/* ================= ЗЕМЛЯ ================= */
+
+const terrainGeometry =
+  new THREE.PlaneGeometry(
+    WORLD_SIZE * 2,
+    WORLD_SIZE * 2,
+    140,
+    140
+  );
+
+terrainGeometry.rotateX(-Math.PI / 2);
+
+const terrainPositions =
+  terrainGeometry.attributes.position;
+
+const terrainColors = [];
+
+const grassColor =
+  new THREE.Color(0x5f8f3e);
+
+const dryGrassColor =
+  new THREE.Color(0x8d9a4d);
+
+const dirtColor =
+  new THREE.Color(0x796143);
+
+const mountainColor =
+  new THREE.Color(0x888985);
+
+const sandColor =
+  new THREE.Color(0xc9bd8e);
+
+for (
+  let i = 0;
+  i < terrainPositions.count;
+  i++
+) {
+
+  const x =
+    terrainPositions.getX(i);
+
+  const z =
+    terrainPositions.getZ(i);
+
+  const y =
+    getTerrainHeight(x, z);
+
+  terrainPositions.setY(i, y);
+
+  let color;
+
+  if (y < WATER_LEVEL + 0.7) {
+
+    color = sandColor;
+
+  } else if (y > 7) {
+
+    color = mountainColor;
+
+  } else if (y > 4.5) {
+
+    color = dirtColor;
+
+  } else if (
+    Math.sin(x * 0.05) +
+    Math.cos(z * 0.04) > 0.6
+  ) {
+
+    color = dryGrassColor;
+
+  } else {
+
+    color = grassColor;
+
+  }
+
+  terrainColors.push(
+    color.r,
+    color.g,
+    color.b
+  );
+}
+
+terrainGeometry.setAttribute(
+  "color",
+  new THREE.Float32BufferAttribute(
+    terrainColors,
+    3
+  )
+);
+
+terrainGeometry.computeVertexNormals();
+
+const terrainMesh =
+  new THREE.Mesh(
+    terrainGeometry,
+    new THREE.MeshLambertMaterial({
+      vertexColors: true
+    })
+  );
+
+scene.add(terrainMesh);
+
+/* ================= ВОДА ================= */
+
+const waterMesh =
+  new THREE.Mesh(
+    new THREE.PlaneGeometry(
+      WORLD_SIZE * 2.4,
+      WORLD_SIZE * 2.4
+    ),
+    new THREE.MeshLambertMaterial({
+      color: 0x2e6d85,
+      transparent: true,
+      opacity: 0.78
+    })
+  );
+
+waterMesh.rotation.x =
+  -Math.PI / 2;
+
+waterMesh.position.y =
+  WATER_LEVEL;
+
+scene.add(waterMesh);
+
+/* ================= МАТЕРИАЛЫ ================= */
+
+const resourceMaterials = {
+
+  bark:
+    new THREE.MeshLambertMaterial({
+      color: 0x60432d
+    }),
+
+  leaf:
+    new THREE.MeshLambertMaterial({
+      color: 0x3f7735
+    }),
+
+  leafLight:
+    new THREE.MeshLambertMaterial({
+      color: 0x58883a
+    }),
+
+  pine:
+    new THREE.MeshLambertMaterial({
+      color: 0x2e5b32
+    }),
+
+  stone:
+    new THREE.MeshStandardMaterial({
+      color: 0x555555,
+      roughness: 1,
+      metalness: 0,
+      flatShading: true
+    }),
+
+  iron:
+    new THREE.MeshLambertMaterial({
+      color: 0xa66f45,
+      flatShading: true
+    }),
+
+  sulfur:
+    new THREE.MeshStandardMaterial({
+      color: 0xa49b5a,
+      roughness: 1,
+      metalness: 0,
+      flatShading: true
+    })
+
+};
+
+/* ================= НЕРОВНЫЙ КАМЕНЬ ================= */
+
+function createBumpyGeometry(radius) {
+
+  const geometry =
+    new THREE.IcosahedronGeometry(
+      radius,
+      1
+    );
+
+  const positions =
+    geometry.attributes.position;
+
+  for (
+    let i = 0;
+    i < positions.count;
+    i++
+  ) {
+
+    const x = positions.getX(i);
+    const y = positions.getY(i);
+    const z = positions.getZ(i);
+
+    const noise =
+      1 +
+      Math.sin(x * 5) *
+      Math.cos(y * 4) *
+      Math.sin(z * 6) *
+      0.18;
+
+    positions.setXYZ(
+      i,
+      x * noise,
+      y * noise,
+      z * noise
+    );
+  }
+
+  geometry.computeVertexNormals();
+
+  return geometry;
+}
+
+/* ================= РЕСУРСЫ ================= */
+
+const worldResources = [];
+
+function addWorldResource(group, data) {
+
+  const x = group.position.x;
+  const z = group.position.z;
+
+  group.position.y =
+    getTerrainHeight(x, z);
+
+  scene.add(group);
+
+  const resource = {
+
+    group,
+
+    type: data.type,
+    name: data.name,
+
+    hp: data.maxHp,
+    maxHp: data.maxHp,
+
+    radius: data.radius,
+
+    drop: data.drop,
+    dropAmount: data.dropAmount,
+
+    alive: true,
+
+    /*
+      Состояние анимации удара.
+    */
+
+    hitAnimation: 0,
+
+    hitAnimationTime: 0,
+
+    hitAnimationDuration: 0.16,
+
+    /*
+      Сохраняем исходную позицию,
+      чтобы камень мог слегка подпрыгнуть.
+    */
+
+    baseY:
+      getTerrainHeight(x, z),
+
+    baseRotationX:
+      group.rotation.x,
+
+    baseRotationZ:
+      group.rotation.z
+
+  };
+
+  worldResources.push(resource);
+
+  return resource;
+}
+
+/* ================= АНИМАЦИЯ УДАРА РЕСУРСА ================= */
+
+function playResourceHitAnimation(resource) {
+
+  if (!resource || !resource.alive)
+    return;
+
+  /*
+    Начинаем анимацию.
+
+    Камень слегка идёт:
+    вверх → вниз.
+
+    Без резкого движения.
+  */
+
+  resource.hitAnimation = 1;
+  resource.hitAnimationTime = 0;
+}
+
+/* ================= ОБНОВЛЕНИЕ АНИМАЦИИ РЕСУРСА ================= */
+
+function updateResourceAnimations(dt) {
+
+  for (
+    const resource of worldResources
+  ) {
+
+    if (!resource.alive)
+      continue;
+
+    if (
+      resource.hitAnimation <= 0
+    ) {
+
+      /*
+        Возвращаем объект
+        в исходное положение.
+      */
+
+      resource.group.position.y =
+        resource.baseY;
+
+      continue;
+    }
+
+    resource.hitAnimationTime += dt;
+
+    const progress =
+      resource.hitAnimationTime /
+      resource.hitAnimationDuration;
+
+    if (progress >= 1) {
+
+      resource.hitAnimation = 0;
+
+      resource.group.position.y =
+        resource.baseY;
+
+      resource.group.rotation.x =
+        resource.baseRotationX;
+
+      resource.group.rotation.z =
+        resource.baseRotationZ;
+
+      continue;
+    }
+
+    /*
+      0 → 1 → 0
+
+      Получается мягкое
+      движение вверх-вниз.
+    */
+
+    const wave =
+      Math.sin(progress * Math.PI);
+
+    /*
+      Очень маленькая высота,
+      чтобы камень не выглядел
+      так, будто он подпрыгивает.
+    */
+
+    const lift =
+      wave * 0.16;
+
+    resource.group.position.y =
+      resource.baseY + lift;
+
+    /*
+      Лёгкое покачивание.
+    */
+
+    resource.group.rotation.x =
+      resource.baseRotationX +
+      Math.sin(progress * Math.PI * 2) *
+      0.025;
+
+    resource.group.rotation.z =
+      resource.baseRotationZ +
+      Math.cos(progress * Math.PI * 2) *
+      0.02;
+  }
+}
+
+/* ================= ДЕРЕВО ================= */
+
+function createTree(x, z, treeType) {
+
+  const group =
+    new THREE.Group();
+
+  group.position.set(
+    x,
+    0,
+    z
+  );
+
+  const trunk =
+    new THREE.Mesh(
+      new THREE.CylinderGeometry(
+        0.25,
+        0.45,
+        4,
+        7
+      ),
+      resourceMaterials.bark
+    );
+
+  trunk.position.y = 2;
+
+  group.add(trunk);
+
+  if (treeType === 0) {
+
+    /*
+      Хвойное дерево.
+    */
+
+    for (
+      let i = 0;
+      i < 3;
+      i++
+    ) {
+
+      const cone =
+        new THREE.Mesh(
+          new THREE.ConeGeometry(
+            2.1 - i * 0.45,
+            2.4,
+            7
+          ),
+          resourceMaterials.pine
+        );
+
+      cone.position.y =
+        3.2 + i * 1.25;
+
+      group.add(cone);
+    }
+
+  } else {
+
+    const crown =
+      new THREE.Mesh(
+        createBumpyGeometry(
+          treeType === 1
+            ? 2.2
+            : 1.7
+        ),
+        treeType === 1
+          ? resourceMaterials.leaf
+          : resourceMaterials.leafLight
+      );
+
+    crown.position.y =
+      treeType === 1
+        ? 4.3
+        : 5;
+
+    crown.scale.y = 0.8;
+
+    group.add(crown);
+  }
+
+  group.scale.setScalar(
+    randomRange(0.85, 1.2)
+  );
+
+  group.rotation.y =
+    randomRange(0, Math.PI * 2);
+
+  return addWorldResource(
+    group,
+    {
+      type: "tree",
+      name: "Дерево",
+
+      maxHp: 5,
+
+      radius: 1.1,
+
+      drop: "wood",
+
+      dropAmount: 2
+    }
+  );
+}
+
+/* ================= РУДА ================= */
+
+function createOre(x, z, type) {
+
+  const group =
+    new THREE.Group();
+
+  group.position.set(
+    x,
+    0,
+    z
+  );
+
+  const base =
+    new THREE.Mesh(
+      createBumpyGeometry(1.15),
+      resourceMaterials.stone
+    );
+
+  base.scale.y = 0.7;
+  base.position.y = 0.5;
+
+  group.add(base);
+
+  let material;
+
+  if (type === "iron") {
+
+    material =
+      resourceMaterials.iron;
+
+  } else if (type === "sulfur") {
+
+    material =
+      resourceMaterials.sulfur;
+
+  } else {
+
+    material =
+      resourceMaterials.stone;
+  }
+
+  for (
+    let i = 0;
+    i < 4;
+    i++
+  ) {
+
+    const piece =
+      new THREE.Mesh(
+        createBumpyGeometry(
+          type === "stone"
+            ? 0.5
+            : 0.3
+        ),
+        material
+      );
+
+    piece.position.set(
+      randomRange(-0.7, 0.7),
+      randomRange(0.5, 1),
+      randomRange(-0.7, 0.7)
+    );
+
+    group.add(piece);
+  }
+
+  const names = {
+
+    stone: "Камень",
+
+    iron: "Железо",
+
+    sulfur: "Сера"
+
+  };
+
+  return addWorldResource(
+    group,
+    {
+      type: "ore",
+
+      name: names[type],
+
+      maxHp:
+        type === "stone"
+          ? 4
+          : 6,
+
+      radius: 1.3,
+
+      drop: type,
+
+      dropAmount:
+        type === "stone"
+          ? 3
+          : 2
+    }
+  );
+}
+
+/* ================= ПРОВЕРКА ЗЕМЛИ ================= */
+
+function isLand(x, z) {
+
+  return (
+    getTerrainHeight(x, z) >
+    WATER_LEVEL + 0.6
+  );
+}
+
+/* ================= РАССЫПАНИЕ ОБЪЕКТОВ ================= */
+
+function scatterWorldObjects(
+  count,
+  callback
+) {
+
+  let placed = 0;
+  let attempts = 0;
+
+  while (
+    placed < count &&
+    attempts < count * 30
+  ) {
+
+    attempts++;
+
+    const x =
+      randomRange(-82, 82);
+
+    const z =
+      randomRange(-82, 82);
+
+    if (!isLand(x, z))
+      continue;
+
+    /*
+      Не ставим ресурсы прямо
+      возле центра появления.
+    */
+
+    if (
+      Math.hypot(x, z) < 8
+    )
+      continue;
+
+    callback(x, z);
+
+    placed++;
+  }
+}
+
+/* ================= СОЗДАНИЕ МИРА ================= */
+
+scatterWorldObjects(
+  75,
+  (x, z) => {
+
+    createTree(
+      x,
+      z,
+      Math.floor(
+        randomRange(0, 3)
+      )
+    );
+
+  }
+);
+
+scatterWorldObjects(
+  15,
+  (x, z) => {
+
+    createOre(
+      x,
+      z,
+      "stone"
+    );
+
+  }
+);
+
+scatterWorldObjects(
+  8,
+  (x, z) => {
+
+    createOre(
+      x,
+      z,
+      "iron"
+    );
+
+  }
+);
+
+scatterWorldObjects(
+  7,
+  (x, z) => {
+
+    createOre(
+      x,
+      z,
+      "sulfur"
+    );
+
+  }
+);
+
+/* ================= ПОДГОТОВКА ВОДЫ ================= */
+
+function updateWater(time) {
+
+  if (!waterMesh)
+    return;
+
+  waterMesh.position.y =
+    WATER_LEVEL +
+    Math.sin(time * 0.001) * 0.05;
+}
+
+/* ================= ДОСТУП ДЛЯ ДРУГИХ ЧАСТЕЙ ================= */
+
+window.worldResources =
+  worldResources;
+
+window.getTerrainHeight =
+  getTerrainHeight;
+
+window.playResourceHitAnimation =
+  playResourceHitAnimation;
+
+window.updateResourceAnimations =
+  updateResourceAnimations;
+
+window.updateWater =
+  updateWater;
+
+window.WATER_LEVEL =
+  WATER_LEVEL;
+
+</script>
+<!-- ================= ЧАСТЬ 3/6 ================= -->
+<!-- РУКА + МОДЕЛЬ КОПЬЯ -->
+
+<script type="module">
+
+/*
+  ВАЖНО:
+  Этот блок должен находиться внутри основного
+  <script type="module"> твоей игры.
+
+  Если у тебя уже есть старый блок HAND,
+  замени его этим блоком.
+*/
+
+/* ================= СОСТОЯНИЕ ОРУЖИЯ ================= */
+
+window.weaponState = {
+
+  equipped: "stone",
+
+  spearCrafted: false,
+
+  attacking: false,
+
+  attackTime: 0,
+
+  attackDuration: 0.22
+
+};
+
+/* ================= ГРУППА РУКИ ================= */
+
+const playerHand =
+  new THREE.Group();
+
+camera.add(playerHand);
+
+playerHand.position.set(
+  0.12,
+  -0.30,
+  -0.50
+);
+
+/* ================= МАТЕРИАЛЫ ================= */
+
+const handSkinMaterial =
+  new THREE.MeshLambertMaterial({
+    color: 0xc08a62
+  });
+
+const handClothesMaterial =
+  new THREE.MeshLambertMaterial({
+    color: 0x555555
+  });
+
+const spearWoodMaterial =
+  new THREE.MeshLambertMaterial({
+    color: 0x70452a
+  });
+
+const spearMetalMaterial =
+  new THREE.MeshStandardMaterial({
+    color: 0xaaaaaa,
+    roughness: 0.65,
+    metalness: 0.35
+  });
+
+/* ================= РУКА ================= */
+
+const armMesh =
+  new THREE.Mesh(
+    new THREE.CylinderGeometry(
+      0.08,
+      0.105,
+      0.5,
+      8
+    ),
+    handSkinMaterial
+  );
+
+armMesh.rotation.set(
+  1.15,
+  0,
+  -0.25
+);
+
+armMesh.position.set(
+  0.06,
+  -0.20,
+  0.12
+);
+
+playerHand.add(armMesh);
+
+/* ================= РУКАВ ================= */
+
+const cuffMesh =
+  new THREE.Mesh(
+    new THREE.CylinderGeometry(
+      0.10,
+      0.11,
+      0.16,
+      8
+    ),
+    handClothesMaterial
+  );
+
+cuffMesh.rotation.copy(
+  armMesh.rotation
+);
+
+cuffMesh.position.set(
+  0.10,
+  -0.36,
+  0.24
+);
+
+playerHand.add(cuffMesh);
+
+/* ================= КУЛАК ================= */
+
+const fistMesh =
+  new THREE.Mesh(
+    createBumpyGeometry(0.11),
+    handSkinMaterial
+  );
+
+fistMesh.position.set(
+  0,
+  0.02,
+  -0.03
+);
+
+playerHand.add(fistMesh);
+
+/* ================= КАМЕНЬ В РУКЕ ================= */
+
+const heldStone =
+  new THREE.Mesh(
+    createBumpyGeometry(0.15),
+    new THREE.MeshStandardMaterial({
+      color: 0x999999,
+      roughness: 0.9,
+      metalness: 0
+    })
+  );
+
+heldStone.position.set(
+  0,
+  0.06,
+  -0.08
+);
+
+playerHand.add(heldStone);
+
+/* ================= КОПЬЁ ================= */
+
+const spearModel =
+  new THREE.Group();
+
+/*
+  Длинная деревянная рукоять.
+*/
+
+const spearHandle =
+  new THREE.Mesh(
+    new THREE.CylinderGeometry(
+      0.035,
+      0.045,
+      1.65,
+      8
+    ),
+    spearWoodMaterial
+  );
+
+/*
+  Cylinder по умолчанию направлен по Y.
+*/
+
+spearHandle.rotation.z =
+  Math.PI / 2;
+
+spearHandle.position.set(
+  0,
+  0,
+  0
+);
+
+spearModel.add(
+  spearHandle
+);
+
+/* ================= НАКОНЕЧНИК ================= */
+
+const spearTip =
+  new THREE.Mesh(
+    new THREE.ConeGeometry(
+      0.10,
+      0.42,
+      6
+    ),
+    spearMetalMaterial
+  );
+
+spearTip.rotation.z =
+  -Math.PI / 2;
+
+spearTip.position.set(
+  0.98,
+  0,
+  0
+);
+
+spearModel.add(
+  spearTip
+);
+
+/* ================= ЗАДНЯЯ ЧАСТЬ ================= */
+
+const spearButt =
+  new THREE.Mesh(
+    new THREE.CylinderGeometry(
+      0.045,
+      0.045,
+      0.12,
+      8
+    ),
+    spearWoodMaterial
+  );
+
+spearButt.rotation.z =
+  Math.PI / 2;
+
+spearButt.position.set(
+  -0.88,
+  0,
+  0
+);
+
+spearModel.add(
+  spearButt
+);
+
+/*
+  Положение копья в руке.
+*/
+
+spearModel.position.set(
+  0.10,
+  -0.02,
+  -0.05
+);
+
+spearModel.rotation.set(
+  0,
+  0,
+  -0.15
+);
+
+spearModel.scale.setScalar(
+  0.78
+);
+
+/*
+  Пока копьё скрыто.
+*/
+
+spearModel.visible = false;
+
+playerHand.add(
+  spearModel
+);
+
+/* ================= ПОКАЗ ОРУЖИЯ ================= */
+
+function updateHeldWeapon() {
+
+  heldStone.visible =
+    weaponState.equipped === "stone";
+
+  spearModel.visible =
+    weaponState.equipped === "spear";
+
+}
+
+/* ================= ВЫБОР КОПЬЯ ================= */
+
+function equipSpear() {
+
+  if (
+    !weaponState.spearCrafted
+  ) {
+    return;
+  }
+
+  weaponState.equipped =
+    "spear";
+
+  updateHeldWeapon();
+
+}
+
+/* ================= ВЫБОР КАМНЯ ================= */
+
+function equipStone() {
+
+  weaponState.equipped =
+    "stone";
+
+  updateHeldWeapon();
+
+}
+
+/* ================= ДОСТУП ================= */
+
+window.equipSpear =
+  equipSpear;
+
+window.equipStone =
+  equipStone;
+
+window.spearModel =
+  spearModel;
+
+window.playerHand =
+  playerHand;
+
+updateHeldWeapon();
+
+</script>
+<!-- ================= ЧАСТЬ 5/6 ================= -->
+
+<script>
+
+/* ================= ХОТБАР ================= */
+
+const hotbarSlots =
+  document.querySelectorAll(
+    "#hotbar .slot"
+  );
+
+function selectHotbarSlot(slot) {
+
+  if (!slot)
+    return;
+
+  hotbarSlots.forEach(
+    s => s.classList.remove("active")
+  );
+
+  slot.classList.add("active");
+
+  const item =
+    slot.dataset.item || "stone";
+
+  if (item === "spear") {
+
+    if (
+      window.weaponState &&
+      window.weaponState.spearCrafted
+    ) {
+
+      window.equipSpear();
+
+    }
+
+  } else {
+
+    window.equipStone();
+
+  }
+}
+
+/* ================= КЛИК ПО СЛОТАМ ================= */
+
+hotbarSlots.forEach(
+  (slot, index) => {
+
+    slot.addEventListener(
+      "pointerdown",
+      e => {
+
+        e.preventDefault();
+        e.stopPropagation();
+
+        selectHotbarSlot(slot);
+
+      }
+    );
+
+  }
+);
+
+/* ================= ДОБАВИТЬ КОПЬЁ ================= */
+
+function putSpearInHotbar() {
+
+  let targetSlot = null;
+
+  for (
+    const slot of hotbarSlots
+  ) {
+
+    if (
+      !slot.textContent.trim()
+    ) {
+
+      targetSlot = slot;
+      break;
+
+    }
+
+  }
+
+  /*
+    Если свободного места нет,
+    берём последний слот.
+  */
+
+  if (!targetSlot) {
+
+    targetSlot =
+      hotbarSlots[
+        hotbarSlots.length - 1
+      ];
+
+  }
+
+  targetSlot.textContent =
+    "🗡️";
+
+  targetSlot.dataset.item =
+    "spear";
+
+  targetSlot.title =
+    "Копьё";
+
+  /*
+    Выбираем копьё.
+  */
+
+  selectHotbarSlot(
+    targetSlot
+  );
+}
+
+/* ================= СОСТОЯНИЕ КРАФТА ================= */
+
+let spearCrafted =
+  false;
+
+/* ================= КНОПКА КРАФТА ================= */
+
+const craftButton =
+  document.getElementById(
+    "craftButton6"
+  );
+
+const craftMenu =
+  document.getElementById(
+    "craftMenu6"
+  );
+
+const closeCraft =
+  document.getElementById(
+    "closeCraft6"
+  );
+
+const craftSpear =
+  document.getElementById(
+    "craftSpear6"
+  );
+
+const craftMessage =
+  document.getElementById(
+    "craftMessage6"
+  );
+
+/* ================= ОТКРЫТЬ ================= */
+
+if (craftButton) {
+
+  craftButton.addEventListener(
+    "pointerdown",
+    e => {
+
+      e.preventDefault();
+      e.stopPropagation();
+
+      if (!gameStarted)
+        return;
+
+      craftMenu.style.display =
+        "flex";
+
+      updateCraftMenu();
+
+    }
+  );
+
+}
+
+/* ================= ЗАКРЫТЬ ================= */
+
+if (closeCraft) {
+
+  closeCraft.addEventListener(
+    "pointerdown",
+    e => {
+
+      e.preventDefault();
+      e.stopPropagation();
+
+      craftMenu.style.display =
+        "none";
+
+    }
+  );
+
+}
+
+/* ================= ОБНОВИТЬ МЕНЮ ================= */
+
+function updateCraftMenu() {
+
+  if (!craftSpear)
+    return;
+
+  if (spearCrafted) {
+
+    craftSpear.disabled =
+      true;
+
+    craftMessage.textContent =
+      "Копьё уже создано.";
+
+    return;
+
+  }
+
+  const wood =
+    window.gameInv
+      ? window.gameInv.wood
+      : 0;
+
+  if (wood < 10) {
+
+    craftSpear.disabled =
+      true;
+
+    craftMessage.textContent =
+      "Нужно ещё " +
+      (10 - wood) +
+      " дерева.";
+
+  } else {
+
+    craftSpear.disabled =
+      false;
+
+    craftMessage.textContent =
+      "Можно создать копьё.";
+
+  }
+
+}
+
+/* ================= СОЗДАТЬ КОПЬЁ ================= */
+
+if (craftSpear) {
+
+  craftSpear.addEventListener(
+    "pointerdown",
+    e => {
+
+      e.preventDefault();
+      e.stopPropagation();
+
+      if (spearCrafted)
+        return;
+
+      if (
+        !window.gameInv
+      )
+        return;
+
+      if (
+        window.gameInv.wood < 10
+      ) {
+
+        craftMessage.textContent =
+          "Недостаточно дерева.";
+
+        return;
+
+      }
+
+      /*
+        Забираем дерево.
+      */
+
+      window.gameInv.wood -= 10;
+
+      /*
+        Копьё создано.
+      */
+
+      spearCrafted = true;
+
+      if (
+        window.weaponState
+      ) {
+
+        window.weaponState.spearCrafted =
+          true;
+
+      }
+
+      /*
+        Добавляем в хотбар.
+      */
+
+      putSpearInHotbar();
+
+      /*
+        Обновляем HUD.
+      */
+
+      if (
+        typeof updateResources ===
+        "function"
+      ) {
+
+        updateResources();
+
+      }
+
+      if (
+        typeof updateInventoryUI ===
+        "function"
+      ) {
+
+        updateInventoryUI();
+
+      }
+
+      craftMessage.textContent =
+        "Копьё создано!";
+
+      craftSpear.disabled =
+        true;
+
+      /*
+        Закрываем меню.
+      */
+
+      setTimeout(
+        () => {
+
+          craftMenu.style.display =
+            "none";
+
+        },
+        500
+      );
+
+    }
+  );
+
+}
+
+/* ================= ESC ================= */
+
+document.addEventListener(
+  "keydown",
+  e => {
+
+    if (
+      e.key === "Escape"
+    ) {
+
+      if (craftMenu) {
+
+        craftMenu.style.display =
+          "none";
+
+      }
+
+      const inventory =
+        document.getElementById(
+          "inventory"
+        );
+
+      if (inventory) {
+
+        inventory.style.display =
+          "none";
+
+      }
+
+    }
+
+  }
+);
+
+/* ================= КЛИК ПО ФОНУ ================= */
+
+if (craftMenu) {
+
+  craftMenu.addEventListener(
+    "pointerdown",
+    e => {
+
+      if (
+        e.target === craftMenu
+      ) {
+
+        craftMenu.style.display =
+          "none";
+
+      }
+
+    }
+  );
+
+}
+
+/* ================= СОХРАНЕНИЕ ================= */
+
+window.putSpearInHotbar =
+  putSpearInHotbar;
+
+window.updateCraftMenu =
+  updateCraftMenu;
+
+</script>
+<!-- ================= ЧАСТЬ 6/6 ================= -->
+
+<script>
+
+/* ================= ИНВЕНТАРЬ ================= */
+
+const inventoryButton =
+  document.getElementById(
+    "inventoryButton"
+  );
+
+const inventoryWindow =
+  document.getElementById(
+    "inventory"
+  );
+
+const closeInventory =
+  document.getElementById(
+    "closeInventory"
+  );
+
+/* ================= ОТКРЫТИЕ ================= */
+
+if (inventoryButton) {
+
+  inventoryButton.addEventListener(
+    "pointerdown",
+    e => {
+
+      e.preventDefault();
+      e.stopPropagation();
+
+      if (!gameStarted)
+        return;
+
+      inventoryWindow.style.display =
+        "flex";
+
+      updateInventoryUI();
+
+    }
+  );
+
+}
+
+/* ================= ЗАКРЫТИЕ ================= */
+
+if (closeInventory) {
+
+  closeInventory.addEventListener(
+    "pointerdown",
+    e => {
+
+      e.preventDefault();
+      e.stopPropagation();
+
+      inventoryWindow.style.display =
+        "none";
+
+    }
+  );
+
+}
+
+/* ================= UI ИНВЕНТАРЯ ================= */
+
+function updateInventoryUI() {
+
+  if (
+    !window.gameInv
+  )
+    return;
+
+  const values = {
+
+    invWood:
+      window.gameInv.wood,
+
+    invStone:
+      window.gameInv.stone,
+
+    invIron:
+      window.gameInv.iron,
+
+    invSulfur:
+      window.gameInv.sulfur,
+
+    invMeat:
+      window.gameInv.meat
+
+  };
+
+  for (
+    const id in values
+  ) {
+
+    const element =
+      document.getElementById(id);
+
+    if (element) {
+
+      element.textContent =
+        values[id];
+
+    }
+
+  }
+
+}
+
+/* ================= ОБНОВЛЕНИЕ HUD ================= */
+
+function updateGameUI() {
+
+  if (
+    typeof updateResources ===
+    "function"
+  ) {
+
+    updateResources();
+
+  }
+
+  updateInventoryUI();
+
+}
+
+/* ================= RESPAWN ================= */
+
+const respawnButton =
+  document.getElementById(
+    "respawn"
+  );
+
+if (respawnButton) {
+
+  respawnButton.addEventListener(
+    "pointerdown",
+    e => {
+
+      e.preventDefault();
+      e.stopPropagation();
+
+      const death =
+        document.getElementById(
+          "death"
+        );
+
+      if (death) {
+
+        death.style.display =
+          "none";
+
+      }
+
+      /*
+        Возвращаем медведей.
+      */
+
+      if (
+        typeof bears !==
+        "undefined"
+      ) {
+
+        for (
+          const bear of bears
+        ) {
+
+          bear.alive = true;
+          bear.hp = bear.maxHp;
+          bear.state = "wander";
+
+          bear.group.rotation.z = 0;
+
+        }
+
+      }
+
+      if (
+        typeof spawnPlayer ===
+        "function"
+      ) {
+
+        spawnPlayer();
+
+      }
+
+    }
+  );
+
+}
+
+/* ================= СМЕРТЬ ================= */
+
+function playerDeath() {
+
+  if (
+    !player.alive
+  )
+    return;
+
+  player.alive = false;
+
+  player.hp = 0;
+
+  if (
+    typeof updateHealth ===
+    "function"
+  ) {
+
+    updateHealth();
+
+  }
+
+  const death =
+    document.getElementById(
+      "death"
+    );
+
+  if (death) {
+
+    death.style.display =
+      "flex";
+
+  }
+
+}
+
+window.playerDeath =
+  playerDeath;
+
+/* ================= УРОН ================= */
+
+function damagePlayer(amount) {
+
+  if (
+    !player.alive
+  )
+    return;
+
+  player.hp -= amount;
+
+  player.hp =
+    Math.max(
+      0,
+      player.hp
+    );
+
+  if (
+    typeof updateHealth ===
+    "function"
+  ) {
+
+    updateHealth();
+
+  }
+
+  if (
+    player.hp <= 0
+  ) {
+
+    playerDeath();
+
+  }
+
+}
+
+window.damage =
+  damagePlayer;
+
+/* ================= КАМЕРА ================= */
+
+function updateCameraFromPlayer() {
+
+  if (!player)
+    return;
+
+  camera.position.set(
+    player.pos.x,
+    player.pos.y +
+      player.eye,
+    player.pos.z
+  );
+
+  camera.rotation.order =
+    "YXZ";
+
+  camera.rotation.y =
+    player.yaw;
+
+  camera.rotation.x =
+    player.pitch;
+
+}
+
+/* ================= ОСНОВНОЙ ЦИКЛ ================= */
+
+const gameClock =
+  new THREE.Clock();
+
+function gameLoop() {
+
+  requestAnimationFrame(
+    gameLoop
+  );
+
+  const dt =
+    Math.min(
+      0.05,
+      gameClock.getDelta()
+    );
+
+  /*
+    Игровая логика.
+  */
+
+  if (gameStarted) {
+
+    if (
+      typeof updatePlayer ===
+      "function"
+    ) {
+
+      updatePlayer(dt);
+
+    }
+
+    if (
+      typeof updateBears ===
+      "function"
+    ) {
+
+      updateBears(dt);
+
+    }
+
+    /*
+      Анимация копья/камня.
+    */
+
+    if (
+      typeof updateWeaponAnimation ===
+      "function"
+    ) {
+
+      updateWeaponAnimation(dt);
+
+    }
+
+    /*
+      Анимация добываемых объектов.
+    */
+
+    if (
+      typeof updateResourceAnimations ===
+      "function"
+    ) {
+
+      updateResourceAnimations(dt);
+
+    }
+
+    /*
+      Вода.
+    */
+
+    if (
+      typeof updateWater ===
+      "function"
+    ) {
+
+      updateWater(
+        performance.now()
+      );
+
+    }
+
+    /*
+      Кулдаун удара.
+    */
+
+    if (
+      typeof cooldown !==
+      "undefined" &&
+      cooldown > 0
+    ) {
+
+      cooldown -= dt;
+
+    }
+
+  }
+
+  /*
+    Рендер.
+  */
+
+  renderer.render(
+    scene,
+    camera
+  );
+
+}
+
+/* ================= ЗАПУСК ================= */
+
+gameLoop();
+
+/* ================= ПЕРВОНАЧАЛЬНЫЙ UI ================= */
+
+updateGameUI();
+
+/* ================= FPS ================= */
+
+let fpsFrames = 0;
+
+let fpsStart =
+  performance.now();
+
+function fpsLoop() {
+
+  requestAnimationFrame(
+    fpsLoop
+  );
+
+  fpsFrames++;
+
+  const now =
+    performance.now();
+
+  const elapsed =
+    now - fpsStart;
+
+  if (
+    elapsed >= 500
+  ) {
+
+    const fps =
+      Math.round(
+        fpsFrames /
+        (elapsed / 1000)
+      );
+
+    const fpsElement =
+      document.getElementById(
+        "fps"
+      );
+
+    if (
+      fpsElement &&
+      typeof showFPS !==
+      "undefined" &&
+      showFPS &&
+      gameStarted
+    ) {
+
+      fpsElement.textContent =
+        "FPS: " + fps;
+
+      fpsElement.style.display =
+        "block";
+
+    }
+
+    fpsFrames = 0;
+    fpsStart = now;
+
+  }
+
+}
+
+fpsLoop();
+
+</script>
