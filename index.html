@@ -532,7 +532,7 @@ canvas {
       Дерево: <b id="wood">0</b><br>
       Камень: <b id="stone">0</b><br>
       Железо: <b id="iron">0</b><br>
-      Медь: <b id="copper">0</b><br>
+      Сера: <b id="sulfur">0</b><br>
       Мясо: <b id="meat">0</b>
     </div>
 
@@ -588,6 +588,7 @@ canvas {
   </button>
 
 </div>
+
 <script type="importmap">
 {
   "imports": {
@@ -873,8 +874,10 @@ const materials = {
     }),
 
   rock:
-    new THREE.MeshLambertMaterial({
-      color:0x858783,
+    new THREE.MeshStandardMaterial({
+      color:0x3a3a38,
+      roughness:1,
+      metalness:0,
       flatShading:true
     }),
 
@@ -884,9 +887,11 @@ const materials = {
       flatShading:true
     }),
 
-  copper:
-    new THREE.MeshLambertMaterial({
-      color:0x399b82,
+  sulfur:
+    new THREE.MeshStandardMaterial({
+      color:0xa49b5a,
+      roughness:1,
+      metalness:0,
       flatShading:true
     })
 
@@ -1074,8 +1079,8 @@ function makeOre(x,z,type){
   const mat =
     type==="iron"
       ? materials.iron
-      : type==="copper"
-      ? materials.copper
+      : type==="sulfur"
+      ? materials.sulfur
       : materials.rock;
 
   for(
@@ -1107,7 +1112,7 @@ function makeOre(x,z,type){
   const names={
     stone:"Камень",
     iron:"Железная руда",
-    copper:"Медная руда"
+    sulfur:"Сера"
   };
 
   return addResource(
@@ -1203,7 +1208,7 @@ scatter(
     makeOre(
       x,
       z,
-      "copper"
+      "sulfur"
     )
 );
   /* ================= PLAYER ================= */
@@ -1223,7 +1228,7 @@ const inv = {
   wood: 0,
   stone: 0,
   iron: 0,
-  copper: 0,
+  sulfur: 0,
   meat: 0
 };
 
@@ -1577,7 +1582,7 @@ function updateResources(){
   $("wood").textContent=inv.wood;
   $("stone").textContent=inv.stone;
   $("iron").textContent=inv.iron;
-  $("copper").textContent=inv.copper;
+  $("sulfur").textContent=inv.sulfur;
   $("meat").textContent=inv.meat;
 
 }
@@ -1948,8 +1953,7 @@ $("jump").addEventListener(
     jump();
   }
 );
-
-/* ================= AIM ================= */
+  /* ================= AIM ================= */
 
 function forward(){
 
@@ -2343,7 +2347,8 @@ function updateBears(dt){
   }
 
 }
-  /* ================= MENU ================= */
+
+/* ================= MENU ================= */
 
 let gameStarted=false;
 
@@ -2469,8 +2474,7 @@ function updateFPS(){
 }
 
 updateFPS();
-
-/* ================= DEATH ================= */
+  /* ================= DEATH ================= */
 
 $("respawn").addEventListener(
   "click",
